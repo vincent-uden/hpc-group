@@ -14,7 +14,7 @@ print_help(){
     printf("Options:\n");
     printf("  -t, --threads <num_threads>  Specify the number of threads (positive integer)\n");
     printf("  -c, --chunk_size <chunk_size> Specify the chunk size (positive integer)\n");
-    printf("  -?, --help                   Display this help message\n");
+    printf("  -h, --help                   Display this help message\n");
 }
 
 
