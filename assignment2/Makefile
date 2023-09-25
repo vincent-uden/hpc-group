@@ -8,6 +8,10 @@ all : $(BINS)
 clean :
 	rm -rf ./build
 
-cell_distances : src/main.c src/distances.c src/point.c src/cli.c src/read_file.c
+.PHONY : run
+run : cell_distances
+	./build/cell_distances
+
+cell_distances : src/main.c src/distances.c src/read_file.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
