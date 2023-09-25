@@ -5,10 +5,6 @@
 
 typedef struct {
     size_t threads;
-} CliArgs;
-
-typedef struct {
-    size_t threads;
     size_t chunk_size;
 } CliArgs;
 
@@ -17,7 +13,7 @@ print_help(){
     printf("Usage: cell_distances -t <num_threads> -c <chunk_size>\n");
     printf("Options:\n");
     printf("  -t, --threads <num_threads>  Specify the number of threads (positive integer)\n");
-    printf("  -c, --chunk-size <chunk_size> Specify the chunk size (positive integer)\n");
+    printf("  -c, --chunk_size <chunk_size> Specify the chunk size (positive integer)\n");
     printf("  -?, --help                   Display this help message\n");
 }
 
@@ -27,14 +23,14 @@ CliArgs parse_cli(int argc, char** argv) {
 
     // Default values
     args.threads = 1;
-    args.threads = 1000;
+    args.chunk_size = 1000;
 
     // Define the long options
     struct option long_options[] = {
         // long_name , ?argument required, default, short_name
-        {"threads",   1, 0, 't'},
-        {"chunksize", 1, 0, 'c'},
-        {"help", 1, 0, '?'},
+        {"threads",   0, 0, 't'},
+        {"chunk_size", 0, 0, 'c'},
+        {"help", 0, 0, 'h'},
         {0, 0, 0, 0}
     };
 
@@ -48,7 +44,7 @@ CliArgs parse_cli(int argc, char** argv) {
             case 'c':
                 args.chunk_size = atoi(optarg);
                 break;
-            case '?':
+            case 'h':
                 print_help();
                 break;
             default :
@@ -61,8 +57,8 @@ CliArgs parse_cli(int argc, char** argv) {
 int main(int argc, char** argv) {
     CliArgs args = parse_cli(argc, argv);
 
-    printf("Number of threads: %d\n", args.threads);
-    printf("Chunk size: %d\n", args.chunk_size);
+    printf("Number of threads: %ld\n", args.threads);
+    printf("Chunk size: %ld\n", args.chunk_size);
 
     return 0;
 }
