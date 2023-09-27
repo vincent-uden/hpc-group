@@ -15,3 +15,8 @@ run : cell_distances
 cell_distances : src/main.c src/distances.c src/read_file.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
+
+test : test/test.c src/distances.c src/read_file.c
+	mkdir -p build_test
+	gcc -o ./build_test/$@ $^ $(CFLAGS)
+	./build_test/test
