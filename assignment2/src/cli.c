@@ -36,11 +36,21 @@ CliArgs parse_cli(int argc, char** argv) {
                 args.chunk_size = atoi(optarg);
                 break;
             case 'h':
-                printf("Usage: cell_distances -t <num_threads> -c <chunk_size>\n");
+                printf("Usage: cell_distances [OPTIONS]\n");
+                printf("Calculate cell distances using parallization.\n");
+                printf("\n");
                 printf("Options:\n");
-                printf("  -t, --threads <num_threads>  Specify the number of threads (positive integer)\n");
-                printf("  -c, --chunk_size <chunk_size> Specify the chunk size (positive integer)\n");
-                printf("  -h, --help                   Display this help message\n");
+                printf("    -t, --threads <num_threads>   Specify the number of threads (positive integer), Default []\n");
+                printf("    -c, --chunk-size <chunk_size> Specify the chunk size (positive integer) Default []\n");
+                printf("    -h, --help                    Display this help message\n");
+                printf("\n");
+                printf("Description:\n");
+                printf("    This program calculates cell distances using multi-threading to speed up the process.\n");
+                printf("    You can specify the number of threads and the chunk size to control the computation.\n");
+                printf("\n");
+                printf("Example usage:\n");
+                printf("    cell_distances -t 4 -c 1000\n");
+
                 break;
         }
     }
@@ -49,9 +59,10 @@ CliArgs parse_cli(int argc, char** argv) {
 
 int main(int argc, char** argv) {
     CliArgs args = parse_cli(argc, argv);
-
-    printf("Number of threads: %ld\n", args.threads);
+    
+    printf("\nNumber of threads: %ld\n", args.threads);
     printf("Chunk size: %ld\n", args.chunk_size);
 
     return 0;
 }
+
