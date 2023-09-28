@@ -20,6 +20,6 @@ test_distances : src/distances.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ -O3 -DTEST_DISTANCES
 
-benchmark_distances : src/distances.c
+benchmark_distances : src/distances.c src/benchmark-distances.c
 	mkdir -p build
-	gcc -o ./build/$@ $^ -O3 -DBENCHMARK_DISTANCES
+	gcc -o ./build/$@ $^ -O3

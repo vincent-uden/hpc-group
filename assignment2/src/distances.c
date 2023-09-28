@@ -4,7 +4,8 @@
 
 #define MAX_SQ 20000*20000 * 3
 
-int _calc_dist(Point* p1, Point* p2) {
+
+int calc_dist(Point* p1, Point* p2) {
     int dx = p2->x - p1->x;
     int dy = p2->y - p1->y;
     int dz = p2->z - p1->z;
@@ -13,7 +14,43 @@ int _calc_dist(Point* p1, Point* p2) {
     return sqrt(dist_sq);
 }
 
-int calc_dist(Point* p1, Point* p2) {
+int calc_dist_float(Point* p1, Point* p2) {
+    float dx = p2->x - p1->x;
+    float dy = p2->y - p1->y;
+    float dz = p2->z - p1->z;
+
+    float dist_sq = dx*dx + dy*dy + dz*dz;
+    return (int) sqrt(dist_sq);
+}
+
+int calc_dist_float_point(PointFloat* p1, PointFloat* p2) {
+    float dx = p2->x - p1->x;
+    float dy = p2->y - p1->y;
+    float dz = p2->z - p1->z;
+
+    float dist_sq = dx*dx + dy*dy + dz*dz;
+    return (int) sqrt(dist_sq);
+}
+
+int calc_dist_double(Point* p1, Point* p2) {
+    double dx = p2->x - p1->x;
+    double dy = p2->y - p1->y;
+    double dz = p2->z - p1->z;
+
+    double dist_sq = dx*dx + dy*dy + dz*dz;
+    return (int) sqrt(dist_sq);
+}
+
+int calc_dist_double_point(PointDouble* p1, PointDouble* p2) {
+    double dx = p2->x - p1->x;
+    double dy = p2->y - p1->y;
+    double dz = p2->z - p1->z;
+
+    double dist_sq = dx*dx + dy*dy + dz*dz;
+    return (int) sqrt(dist_sq);
+}
+
+int calc_dist_binary_search(Point* p1, Point* p2) {
     int dx = p2->x - p1->x;
     int dy = p2->y - p1->y;
     int dz = p2->z - p1->z;
@@ -26,15 +63,16 @@ int calc_dist(Point* p1, Point* p2) {
     while (low < high) {
         int m = (low + high) / 2;
         int sq = m*m;
-        if (sq < dist_sq) low = m + 1;
-        else high = m - 1;
+        if ( sq == dist_sq ) return m;
+        else if (sq > dist_sq) high = m - 1;
+        else low = m + 1;
     }
     return low;
 }
 
 void increment_bin(int dist, int* bins) {
     // Increment the correct bin
-    int bin = dist / 10; // Truncate 4 digits
+    int bin = dist / 10; // Truncate to 4 digits
     bins[bin] += 1;
 }
 
@@ -42,6 +80,7 @@ void distance(Point* p1, Point* p2, int* bins) {
     // Calculate distance between point p1 and p2
     // and increase the bin with that distance
     int dist = calc_dist(p1, p2);
+    increment_bin(dist, bins);
 }
 
 #ifdef TEST_DISTANCES
@@ -130,38 +169,6 @@ int main(int argc, char** argv) {
     }
 
     printf("\n");
-    return 0;
-}
-#endif
-
-#ifdef BENCHMARK_DISTANCES
-#include <stdio.h>
-#include <time.h>
-double timeDiff = 0.0f;
-struct timespec startTime;
-struct timespec endTime;
-
-#define BENCHMARK(func, iters) \
-    timespec_get(&startTime, TIME_UTC); \
-    for (int i = 0; i < iters; ++i) { \
-      func; \
-    } \
-    timespec_get(&endTime, TIME_UTC); \
-    timeDiff = difftime(endTime.tv_sec, startTime.tv_sec) + (endTime.tv_nsec - startTime.tv_nsec) / 1e9; \
-    printf("Time: %f\n", timeDiff); \
-
-int main(int argc, char** argv) {
-    Point p1, p2;
-    p1.x = 1543; p1.y = 1235; p1.z = 14385;
-    p2.x = 145; p2.y = 2346; p2.z = 257;
-    volatile int dist;
-    BENCHMARK(dist = calc_dist(&p1, &p2), 1000)
-
-    BENCHMARK(dist = calc_dist(&p1, &p2), 1000000)
-
-    BENCHMARK(dist = calc_dist(&p1, &p2), 1000000000)
-
-    printf("dist: %d\n", dist);
     return 0;
 }
 #endif
