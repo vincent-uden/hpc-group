@@ -1,5 +1,4 @@
 #include <math.h>
-
 #include "point.h"
 
 #define MAX_SQ 20000*20000 * 3

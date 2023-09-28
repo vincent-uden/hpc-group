@@ -1,4 +1,5 @@
 #include "point.h"
+#include "distances.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -14,14 +15,6 @@
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &endTime); \
     timeDiff = difftime(endTime.tv_sec, startTime.tv_sec) + (endTime.tv_nsec - startTime.tv_nsec) / 1e9; \
     printf("Time: %f\n", timeDiff); \
-
-
-int calc_dist(Point* p1, Point* p2);
-int calc_dist_binary_search(Point* p1, Point* p2);
-int calc_dist_float(Point* p1, Point* p2);
-int calc_dist_float_point(PointFloat* p1, PointFloat* p2);
-int calc_dist_double(Point* p1, Point* p2);
-int calc_dist_double_point(PointDouble* p1, PointDouble* p2);
 
 int main(int argc, char** argv) {
 
