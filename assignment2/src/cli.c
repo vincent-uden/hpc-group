@@ -33,7 +33,6 @@ CliArgs parse_cli(int argc, char** argv) {
                 break;
             case 'i':
                 args.input_file = optarg;
-                printf("Input: %s\n", optarg);
                 break;
             case 'v':
                 args.verbose = 1;
