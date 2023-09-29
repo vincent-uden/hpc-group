@@ -18,7 +18,7 @@ clean :
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create a submission archive.")
-    parser.add_argument("target", help="Name of the target binary", default="main")
+    parser.add_argument("target", help="Name of the target binary", nargs="?", const="main", default="main")
     args = parser.parse_args()
 
     src_files = os.listdir("./src")
