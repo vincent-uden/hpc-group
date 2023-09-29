@@ -7,10 +7,10 @@ static int pow10[5] = {
 
 
 // Assumes:
-// - The file pointer is aleeady open in reading mode
+// - The file pointer is already open in reading mode
 // - points < the length of buffer
 // - read_buffer is at least 24 * points long
-void read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char* read_buffer) {
+int read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char* read_buffer) {
     // There are 24 bytes in a row defining a point.
     fseek(fp, start * ROW_LEN, SEEK_SET);
     int rows = fread(read_buffer, sizeof(char), points * ROW_LEN * points, fp) / ROW_LEN;
@@ -68,4 +68,6 @@ void read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char
         component = 'x';
         point_buffer[i] = tmp;
     }
+
+    return rows;
 }

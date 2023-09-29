@@ -9,6 +9,6 @@
 
 #define ROW_LEN 24
 
-void read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char* read_buffer);
+int read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char* read_buffer);
 
 #endif

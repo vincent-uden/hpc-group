@@ -11,9 +11,12 @@ clean :
 
 .PHONY : run
 run : cell_distances
-	./build/cell_distances
+	./build/cell_distances --input_file ./test/small_sample.txt --threads 4
 
-cell_distances : src/main.c src/distances.c src/read_file.c
+.PHONE : bin
+bin : cell_distances
+
+cell_distances : src/main.c src/distances.c src/read_file.c src/cli.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
 

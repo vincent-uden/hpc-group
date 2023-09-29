@@ -1,8 +1,4 @@
-#include <math.h>
-#include "point.h"
-
-#define MAX_SQ 20000*20000 * 3
-
+#include "distances.h"
 
 int calc_dist(Point* p1, Point* p2) {
     int dx = p2->x - p1->x;
@@ -72,6 +68,7 @@ int calc_dist_binary_search(Point* p1, Point* p2) {
 void increment_bin(int dist, int* bins) {
     // Increment the correct bin
     int bin = dist / 10; // Truncate to 4 digits
+    #pragma omp atomic
     bins[bin] += 1;
 }
 
@@ -136,7 +133,7 @@ int main(int argc, char** argv) {
 
     printf("\nTest bins assignment\n");
     int* bins = (int*) malloc(sizeof(int) * 10000);
-    for (int i = 0; i < 10000; i++) 
+    for (int i = 0; i < 10000; i++)
         bins[i] = 0;
 
     increment_bin(0, bins);
@@ -159,7 +156,7 @@ int main(int argc, char** argv) {
         bins[56] == 1 &&
         bins[99] == 1 &&
         bins[6] == 1
-    ) 
+    )
     {
         printf("P");
     }
