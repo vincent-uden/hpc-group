@@ -26,51 +26,47 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    Point* point_buffer = malloc(sizeof(Point) * args.chunk_size);
+    fseek(fp, 0L, SEEK_END);
+    size_t file_size = ftell(fp);
+    size_t n_chunks = (file_size - 1) / (ROW_LEN * args.chunk_size) + 1;
+
+    Point* point_buffer_1 = malloc(sizeof(Point) * args.chunk_size);
+    Point* point_buffer_2 = malloc(sizeof(Point) * args.chunk_size);
     char* read_buffer = malloc(ROW_LEN * args.chunk_size);
     int bins[BINS];
     memset(bins, 0, sizeof(int) * BINS);
 
-    if (point_buffer == NULL || read_buffer == NULL) {
+    if (point_buffer_1 == NULL || point_buffer_2 == NULL || read_buffer == NULL) {
         fprintf(stderr, "Could not allocate memory\n");
         exit(1);
     }
 
-    int rows_read;
-    size_t start = 0;
+    size_t rows_read;
 
-    size_t current_point_i = 0;
-    Point current_point;
+    for (size_t c1 = 0; c1 < n_chunks; ++c1) {
+        rows_read = read_chunk(fp, c1 * args.chunk_size, args.chunk_size, point_buffer_1, read_buffer);
 
-    while (1) {
-        rows_read = read_chunk(fp, current_point_i, 1, point_buffer, read_buffer);
-        current_point = point_buffer[0];
-
-        if (rows_read == 0) {
-            if (args.verbose) {
-                printf("Reached EOF at point %zu\n", current_point_i);
+        #pragma omp parallel for
+        for (size_t i = 0; i < rows_read; ++i) {
+            for (size_t j = i + 1; j < rows_read; ++j) {
+                distance(point_buffer_1 + i, point_buffer_1 + j, bins);
             }
-            break;
         }
 
-        start = current_point_i + 1;
+        for (size_t c2 = c1 + 1; c2 < n_chunks; ++c2) {
+            rows_read = read_chunk(fp, c2 * args.chunk_size, args.chunk_size, point_buffer_2, read_buffer);
 
-        while ((rows_read = read_chunk(fp, start, args.chunk_size, point_buffer, read_buffer)) > 0) {
             #pragma omp parallel for
-            for (size_t i = 0; i < rows_read; ++i) {
-                if (args.verbose && i == 0) {
-                    printf("Actually using: %d threads\n", omp_get_num_threads());
+            for (size_t i = 0; i < args.chunk_size; ++i) {
+                for (size_t j = 0; j < rows_read; ++j) {
+                    distance(point_buffer_1 + i, point_buffer_2 + j, bins);
                 }
-                distance(&current_point, point_buffer + i, bins);
             }
-
-            start += args.chunk_size;
         }
-
-        current_point_i += 1;
     }
 
-    free(point_buffer);
+    free(point_buffer_1);
+    free(point_buffer_2);
     free(read_buffer);
     fclose(fp);
 

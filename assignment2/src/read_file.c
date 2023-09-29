@@ -10,7 +10,7 @@ static int pow10_static[5] = {
 // - The file pointer is already open in reading mode
 // - points < the length of buffer
 // - read_buffer is at least 24 * points long
-int read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char* read_buffer) {
+size_t read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char* read_buffer) {
     // There are 24 bytes in a row defining a point.
     fseek(fp, start * ROW_LEN, SEEK_SET);
     size_t rows = fread(read_buffer, sizeof(char), points * ROW_LEN, fp) / ROW_LEN;
