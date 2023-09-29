@@ -53,6 +53,9 @@ int main(int argc, char** argv) {
         while ((rows_read = read_chunk(fp, start, args.chunk_size, point_buffer, read_buffer)) > 0) {
             #pragma omp parallel for
             for (size_t i = 0; i < rows_read; ++i) {
+                if (args.verbose && i == 0) {
+                    printf("Actually using: %d threads\n", omp_get_num_threads());
+                }
                 distance(&current_point, point_buffer + i, bins);
             }
 

@@ -67,7 +67,7 @@ int calc_dist_binary_search(Point* p1, Point* p2) {
 
 void increment_bin(int dist, int* bins) {
     // Increment the correct bin
-    int bin = dist / 10; // Truncate to 4 digits
+    int bin = (dist + 5) / 10; // Truncate to 4 digits
     #pragma omp atomic
     bins[bin] += 1;
 }
