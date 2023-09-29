@@ -1,4 +1,4 @@
-BINS = cell_distances test_distances benchmark_distances
+BINS = cell_distances
 CFLAGS = -O3 -fopenmp -lm -march=native
 
 .PHONY : all
