@@ -28,9 +28,10 @@ int main(int argc, char** argv) {
 
     Point* point_buffer = malloc(sizeof(Point) * args.chunk_size);
     char* read_buffer = malloc(ROW_LEN * args.chunk_size);
-    int* bins = calloc(BINS, sizeof(int));
+    int bins[BINS];
+    memset(bins, 0, sizeof(int) * BINS);
 
-    if (point_buffer == NULL || read_buffer == NULL || bins == NULL) {
+    if (point_buffer == NULL || read_buffer == NULL) {
         fprintf(stderr, "Could not allocate memory\n");
         exit(1);
     }
@@ -78,8 +79,6 @@ int main(int argc, char** argv) {
             printf("%02zu.%02zu %d\n", i / 100, i % 100, bins[i]);
         }
     }
-
-    free(bins);
 
     return 0;
 }

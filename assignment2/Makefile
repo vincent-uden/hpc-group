@@ -1,5 +1,5 @@
 BINS = cell_distances
-CFLAGS = -O3 -fopenmp -lm -march=native
+CFLAGS = -O3 -fopenmp -lm -march=native -Wall -Wextra -Wshadow
 
 .PHONY : all
 all : $(BINS)
