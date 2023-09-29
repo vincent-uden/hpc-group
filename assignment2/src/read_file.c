@@ -13,7 +13,7 @@ static int pow10[5] = {
 int read_chunk(FILE* fp, size_t start, size_t points, Point* point_buffer, char* read_buffer) {
     // There are 24 bytes in a row defining a point.
     fseek(fp, start * ROW_LEN, SEEK_SET);
-    int rows = fread(read_buffer, sizeof(char), points * ROW_LEN * points, fp) / ROW_LEN;
+    int rows = fread(read_buffer, sizeof(char), points * ROW_LEN, fp) / ROW_LEN;
 
     if (points < rows) {
         rows = points;
