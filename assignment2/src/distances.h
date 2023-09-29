@@ -1,7 +1,6 @@
 #ifndef DISTANCES
 #define DISTANCES
 
-#include <omp.h>
 #include <math.h>
 
 #include "point.h"

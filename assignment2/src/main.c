@@ -33,8 +33,8 @@ int main(int argc, char** argv) {
     Point* point_buffer_1 = malloc(sizeof(Point) * args.chunk_size);
     Point* point_buffer_2 = malloc(sizeof(Point) * args.chunk_size);
     char* read_buffer = malloc(ROW_LEN * args.chunk_size);
-    int bins[BINS];
-    memset(bins, 0, sizeof(int) * BINS);
+
+    int* bins = calloc(sizeof(int), BINS*args.threads);
 
     if (point_buffer_1 == NULL || point_buffer_2 == NULL || read_buffer == NULL) {
         fprintf(stderr, "Could not allocate memory\n");
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
         #pragma omp parallel for
         for (size_t i = 0; i < rows_read; ++i) {
             for (size_t j = i + 1; j < rows_read; ++j) {
-                distance(point_buffer_1 + i, point_buffer_1 + j, bins);
+                distance(point_buffer_1 + i, point_buffer_1 + j, bins + omp_get_thread_num() * BINS);
             }
         }
 
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
             #pragma omp parallel for
             for (size_t i = 0; i < args.chunk_size; ++i) {
                 for (size_t j = 0; j < rows_read; ++j) {
-                    distance(point_buffer_1 + i, point_buffer_2 + j, bins);
+                    distance(point_buffer_1 + i, point_buffer_2 + j, bins + omp_get_thread_num() * BINS);
                 }
             }
         }
@@ -70,9 +70,11 @@ int main(int argc, char** argv) {
     free(read_buffer);
     fclose(fp);
 
+    int x;
     for (size_t i = 0; i < BINS; ++i) {
-        if (bins[i] > 0) {
-            printf("%02zu.%02zu %d\n", i / 100, i % 100, bins[i]);
+        x = bins[i] + bins[i+BINS] + bins[i+2*BINS] + bins[i+3*BINS];
+        if (x > 0) {
+            printf("%02zu.%02zu %d\n", i / 100, i % 100, x);
         }
     }
 
