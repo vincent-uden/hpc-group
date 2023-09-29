@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <getopt.h>
-
-typedef struct {
-    size_t threads;
-    size_t chunk_size;
-} CliArgs;
+#include "cli.h"
 
 
 CliArgs parse_cli(int argc, char** argv) {
@@ -57,6 +49,9 @@ CliArgs parse_cli(int argc, char** argv) {
     return args;
 }
 
+
+#ifdef CLI_MAIN
+
 int main(int argc, char** argv) {
     CliArgs args = parse_cli(argc, argv);
     
@@ -65,4 +60,5 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+#endif
 
