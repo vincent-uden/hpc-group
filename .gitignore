@@ -55,4 +55,6 @@ build/
 build_test/
 submit/
 
+.ccls-cache/
+
 .vscode/
