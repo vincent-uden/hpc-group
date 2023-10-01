@@ -63,6 +63,10 @@ int main(int argc, char** argv) {
     BENCHMARK(result[i] = calc_dist(&p1s[i], &p2s[i]), test_size)
     printf("Random resutl: %d\n", result[rand() % test_size]);
 
+    printf("\n### Testing calc_dist_intrin ###\n");
+    BENCHMARK(result[i] = calc_dist_intrin(&p1s[i], &p2s[i]), test_size)
+    printf("Random resutl: %d\n", result[rand() % test_size]);
+
     printf("\n### Testing calc_dist_float ###\n");
     BENCHMARK(result[i] = calc_dist_float(&p1s[i], &p2s[i]), test_size)
     printf("Random resutl: %d\n", result[rand() % test_size]);

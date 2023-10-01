@@ -9,6 +9,26 @@ int calc_dist(Point* p1, Point* p2) {
     return sqrt(dist_sq);
 }
 
+int calc_dist_intrin(Point* p1, Point* p2) {
+
+    // Load the points into vector registers
+    int32_t _p1[3] = {p1->x, p1->y, p1->z};
+    int32_t _p2[3] = {p2->x, p2->y, p2->z};
+    int32_t _dxdydz_sq[4];
+
+    __m128i _m_p1 = _mm_loadu_si32((__m128i*) _p1);
+    __m128i _m_p2 = _mm_loadu_si32((__m128i*) _p2);
+
+    // Perform vector calculations
+    __m128i _m_dxdydz = _mm_sub_epi32(_m_p2, _m_p1);
+    __m128i _m_dxdydz_sq = _mm_mullo_epi32(_m_dxdydz, _m_dxdydz);
+    
+    _mm_storeu_si32(_dxdydz_sq, _m_dxdydz_sq);
+
+    int dist_sq = _dxdydz_sq[0] + _dxdydz_sq[1] + _dxdydz_sq[2];
+    return sqrt(dist_sq);
+}
+
 int calc_dist_float(Point* p1, Point* p2) {
     float dx = p2->x - p1->x;
     float dy = p2->y - p1->y;
@@ -74,7 +94,7 @@ void increment_bin(int dist, int* bins) {
 void distance(Point* p1, Point* p2, int* bins) {
     // Calculate distance between point p1 and p2
     // and increase the bin with that distance
-    int dist = calc_dist(p1, p2);
+    int dist = DIST_FUNC(p1, p2);
     increment_bin(dist, bins);
 }
 
@@ -88,7 +108,7 @@ int main(int argc, char** argv) {
         Point p1, p2;
         p1.x = 0; p1.y = 0; p1.z = 0;
         p2.x = i; p2.y = 0; p2.z = 0;
-        int dist = calc_dist(&p1, &p2);
+        int dist = DIST_FUNC(&p1, &p2);
         if (dist == i) {
             printf("P");
         }
@@ -102,7 +122,7 @@ int main(int argc, char** argv) {
     p1.x = 0; p1.y = 0; p1.z = 0;
     p2.x = 1; p2.y = 1; p2.z = 0;
     // sqrt(2)
-    int dist = calc_dist(&p1, &p2);
+    int dist = DIST_FUNC(&p1, &p2);
     if (dist == 1) {
         printf("P");
     }
@@ -112,7 +132,7 @@ int main(int argc, char** argv) {
 
     // sqrt(3)
     p2.z = 1;
-    dist = calc_dist(&p1, &p2);
+    dist = DIST_FUNC(&p1, &p2);
     if (dist == 1) {
         printf("P");
     }
@@ -122,7 +142,7 @@ int main(int argc, char** argv) {
 
     // sqrt(300)
     p2.x = 10; p2.y = 10; p2.z = 10;
-    dist = calc_dist(&p1, &p2);
+    dist = DIST_FUNC(&p1, &p2);
     if (dist == 17) {
         printf("P");
     }
