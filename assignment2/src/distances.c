@@ -12,18 +12,18 @@ int calc_dist(Point* p1, Point* p2) {
 int calc_dist_intrin(Point* p1, Point* p2) {
 
     // Load the points into vector registers
-    int32_t _p1[3] = {p1->x, p1->y, p1->z};
-    int32_t _p2[3] = {p2->x, p2->y, p2->z};
+    int32_t _p1[4] = {p1->x, p1->y, p1->z, 0};
+    int32_t _p2[4] = {p2->x, p2->y, p2->z, 0};
     int32_t _dxdydz_sq[4];
 
-    __m128i _m_p1 = _mm_loadu_si32((__m128i*) _p1);
-    __m128i _m_p2 = _mm_loadu_si32((__m128i*) _p2);
+    __m128i _m_p1 = _mm_loadu_si128((__m128i*) _p1);
+    __m128i _m_p2 = _mm_loadu_si128((__m128i*) _p2);
 
     // Perform vector calculations
     __m128i _m_dxdydz = _mm_sub_epi32(_m_p2, _m_p1);
     __m128i _m_dxdydz_sq = _mm_mullo_epi32(_m_dxdydz, _m_dxdydz);
     
-    _mm_storeu_si32(_dxdydz_sq, _m_dxdydz_sq);
+    _mm_storeu_si128((__m128i*) _dxdydz_sq, _m_dxdydz_sq);
 
     int dist_sq = _dxdydz_sq[0] + _dxdydz_sq[1] + _dxdydz_sq[2];
     return sqrt(dist_sq);
