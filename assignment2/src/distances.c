@@ -29,6 +29,24 @@ int calc_dist_intrin(Point* p1, Point* p2) {
     return sqrt(dist_sq);
 }
 
+int calc_dist_intrin_dot(Point* p1, Point* p2) {
+
+    // Load the points into vector registers
+    float _p1[4] = {(float)p1->x, (float)p1->y, (float)p1->z, 0.0f};
+    float _p2[4] = {(float)p2->x, (float)p2->y, (float)p2->z, 0.0f};
+    float dist_sq[4];
+
+    __m128i _m_p1 = _mm_loadu_si128((__m128i*) _p1);
+    __m128i _m_p2 = _mm_loadu_si128((__m128i*) _p2);
+
+    // Perform vector calculations
+    __m128i _m_dot = _mm_dp_ps(_m_p1, _m_p2, 0xff);
+    
+    _mm_storeu_si128((__m128i*) dist_sq, _m_dot);
+
+    return (int)sqrt(dist_sq[0]);
+}
+
 int calc_dist_float(Point* p1, Point* p2) {
     float dx = p2->x - p1->x;
     float dy = p2->y - p1->y;
@@ -170,11 +188,10 @@ int main(int argc, char** argv) {
         bins[1] == 1 &&
         bins[10] == 1 &&
         bins[101] == 1 &&
-        bins[100] == 1 &&
-        bins[200] == 1 &&
-        bins[56] == 1 &&
-        bins[99] == 1 &&
-        bins[6] == 1
+        bins[201] == 1 &&
+        bins[57] == 1 &&
+        bins[100] == 2 &&
+        bins[7] == 1
     )
     {
         printf("P");
