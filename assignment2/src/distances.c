@@ -29,20 +29,21 @@ int calc_dist_intrin(Point* p1, Point* p2) {
     return sqrt(dist_sq);
 }
 
-int calc_dist_intrin_dot(Point* p1, Point* p2) {
+int calc_dist_intrin_dot(PointFloat* p1, PointFloat* p2) {
 
     // Load the points into vector registers
-    float _p1[4] = {(float)p1->x, (float)p1->y, (float)p1->z, 0.0f};
-    float _p2[4] = {(float)p2->x, (float)p2->y, (float)p2->z, 0.0f};
+    float _p1[4] = {p1->x, p1->y, p1->z, 0.0f};
+    float _p2[4] = {p2->x, p2->y, p2->z, 0.0f};
     float dist_sq[4];
 
-    __m128i _m_p1 = _mm_loadu_si128((__m128i*) _p1);
-    __m128i _m_p2 = _mm_loadu_si128((__m128i*) _p2);
+    __m128 _m_p1 = _mm_loadu_ps(_p1);
+    __m128 _m_p2 = _mm_loadu_ps(_p2);
 
     // Perform vector calculations
-    __m128i _m_dot = _mm_dp_ps(_m_p1, _m_p2, 0xff);
+    __m128 _m_dist = _mm_sub_ps(_m_p2, _m_p1);
+    __m128 _m_dot = _mm_dp_ps(_m_dist, _m_dist, 0xff);
     
-    _mm_storeu_si128((__m128i*) dist_sq, _m_dot);
+    _mm_storeu_ps(dist_sq, _m_dot);
 
     return (int)sqrt(dist_sq[0]);
 }
