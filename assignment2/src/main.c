@@ -104,7 +104,13 @@ int main(int argc, char** argv) {
 
         #pragma omp parallel for
         for (size_t i = 0; i < rows_read; ++i) {
-            for (size_t j = i + 1; j < rows_read; j+=4) {
+            for (size_t j = i + 1; j + 3 < rows_read; j+=4) {
+                if (args.verbose) {
+                    printf("%zu %zu\n", i, j);
+                    printf("%zu %zu\n", i, j+1);
+                    printf("%zu %zu\n", i, j+2);
+                    printf("%zu %zu\n", i, j+3);
+                }
                 packed_dist(point_buffer_1, point_buffer_2, i, j, bins, omp_get_thread_num());
             }
         }
@@ -115,6 +121,12 @@ int main(int argc, char** argv) {
             #pragma omp parallel for
             for (size_t i = 0; i < args.chunk_size; ++i) {
                 for (size_t j = 0; j < rows_read; j += 4) {
+                    if (args.verbose) {
+                        printf("%zu %zu\n", i, j);
+                        printf("%zu %zu\n", i, j+1);
+                        printf("%zu %zu\n", i, j+2);
+                        printf("%zu %zu\n", i, j+3);
+                    }
                     packed_dist(point_buffer_1, point_buffer_2, i, j, bins, omp_get_thread_num());
                 }
             }
