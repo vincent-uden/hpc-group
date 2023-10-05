@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
     int x;
     for (size_t i = 0; i < BINS; ++i) {
-        int x = 0;
+        x = 0;
         for ( int t = 0; t < args.threads; t++ ) x += bins[i+t*BINS];
         if (x > 0) {
             printf("%02zu.%02zu %d\n", i / 100, i % 100, x);

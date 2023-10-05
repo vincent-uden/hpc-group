@@ -6,7 +6,7 @@ CliArgs parse_cli(int argc, char** argv) {
 
     // Default values
     args.threads = 1;
-    args.chunk_size = 1000;
+    args.chunk_size = 10000;
     args.input_file = "./cells";
     args.verbose = 0;
 
@@ -45,7 +45,7 @@ CliArgs parse_cli(int argc, char** argv) {
                 printf("    -t, --threads <num_threads>   Specify the number of threads (positive integer), Default []\n");
                 printf("    -c, --chunk-size <chunk_size> Specify the chunk size (positive integer) Default []\n");
                 printf("    -i, --input_file <input_file> Specify the input file  Default []\n");
-                printf("    -v, --versbose <versbose>     Use verbose output\n");
+                printf("    -v, --verbose <versbose>      Use verbose output\n");
                 printf("    -h, --help                    Display this help message\n");
                 printf("\n");
                 printf("Description:\n");

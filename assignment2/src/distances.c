@@ -1,6 +1,6 @@
 #include "distances.h"
 
-int calc_dist(Point* p1, Point* p2) {
+static inline int calc_dist(Point* p1, Point* p2) {
     int dx = p2->x - p1->x;
     int dy = p2->y - p1->y;
     int dz = p2->z - p1->z;
@@ -9,7 +9,7 @@ int calc_dist(Point* p1, Point* p2) {
     return sqrt(dist_sq);
 }
 
-int calc_dist_intrin(Point* p1, Point* p2) {
+static inline int calc_dist_intrin(Point* p1, Point* p2) {
 
     // Load the points into vector registers
     int32_t _p1[4] = {p1->x, p1->y, p1->z, 0};
@@ -22,14 +22,14 @@ int calc_dist_intrin(Point* p1, Point* p2) {
     // Perform vector calculations
     __m128i _m_dxdydz = _mm_sub_epi32(_m_p2, _m_p1);
     __m128i _m_dxdydz_sq = _mm_mullo_epi32(_m_dxdydz, _m_dxdydz);
-    
+
     _mm_storeu_si128((__m128i*) _dxdydz_sq, _m_dxdydz_sq);
 
     int dist_sq = _dxdydz_sq[0] + _dxdydz_sq[1] + _dxdydz_sq[2];
     return sqrt(dist_sq);
 }
 
-int calc_dist_intrin_dot(PointFloat* p1, PointFloat* p2) {
+static inline int calc_dist_intrin_dot(PointFloat* p1, PointFloat* p2) {
 
     // Load the points into vector registers
     float _p1[4] = {p1->x, p1->y, p1->z, 0.0f};
@@ -42,13 +42,13 @@ int calc_dist_intrin_dot(PointFloat* p1, PointFloat* p2) {
     // Perform vector calculations
     __m128 _m_dist = _mm_sub_ps(_m_p2, _m_p1);
     __m128 _m_dot = _mm_dp_ps(_m_dist, _m_dist, 0xff);
-    
+
     _mm_storeu_ps(dist_sq, _m_dot);
 
     return (int)sqrt(dist_sq[0]);
 }
 
-int calc_dist_float(Point* p1, Point* p2) {
+static inline int calc_dist_float(Point* p1, Point* p2) {
     float dx = p2->x - p1->x;
     float dy = p2->y - p1->y;
     float dz = p2->z - p1->z;
@@ -57,7 +57,7 @@ int calc_dist_float(Point* p1, Point* p2) {
     return (int) sqrt(dist_sq);
 }
 
-int calc_dist_float_point(PointFloat* p1, PointFloat* p2) {
+static inline int calc_dist_float_point(PointFloat* p1, PointFloat* p2) {
     float dx = p2->x - p1->x;
     float dy = p2->y - p1->y;
     float dz = p2->z - p1->z;
@@ -66,7 +66,7 @@ int calc_dist_float_point(PointFloat* p1, PointFloat* p2) {
     return (int) sqrt(dist_sq);
 }
 
-int calc_dist_double(Point* p1, Point* p2) {
+static inline int calc_dist_double(Point* p1, Point* p2) {
     double dx = p2->x - p1->x;
     double dy = p2->y - p1->y;
     double dz = p2->z - p1->z;
@@ -75,7 +75,7 @@ int calc_dist_double(Point* p1, Point* p2) {
     return (int) sqrt(dist_sq);
 }
 
-int calc_dist_double_point(PointDouble* p1, PointDouble* p2) {
+static inline int calc_dist_double_point(PointDouble* p1, PointDouble* p2) {
     double dx = p2->x - p1->x;
     double dy = p2->y - p1->y;
     double dz = p2->z - p1->z;
@@ -84,7 +84,7 @@ int calc_dist_double_point(PointDouble* p1, PointDouble* p2) {
     return (int) sqrt(dist_sq);
 }
 
-int calc_dist_binary_search(Point* p1, Point* p2) {
+static inline int calc_dist_binary_search(Point* p1, Point* p2) {
     int dx = p2->x - p1->x;
     int dy = p2->y - p1->y;
     int dz = p2->z - p1->z;
@@ -104,13 +104,13 @@ int calc_dist_binary_search(Point* p1, Point* p2) {
     return low;
 }
 
-void increment_bin(int dist, int* bins) {
+static inline void increment_bin(int dist, int* bins) {
     // Increment the correct bin
     int bin = (dist + 5) / 10; // Truncate to 4 digits
     bins[bin] += 1;
 }
 
-void distance(Point* p1, Point* p2, int* bins) {
+static inline void distance(Point* p1, Point* p2, int* bins) {
     // Calculate distance between point p1 and p2
     // and increase the bin with that distance
     int dist = DIST_FUNC(p1, p2);
