@@ -72,7 +72,8 @@ int main(int argc, char** argv) {
 
     int x;
     for (size_t i = 0; i < BINS; ++i) {
-        x = bins[i] + bins[i+BINS] + bins[i+2*BINS] + bins[i+3*BINS];
+        int x = 0;
+        for ( int t = 0; t < args.threads; t++ ) x += bins[i+t*BINS];
         if (x > 0) {
             printf("%02zu.%02zu %d\n", i / 100, i % 100, x);
         }
