@@ -35,6 +35,10 @@ static inline void packed_dist(Point* point_buffer_1, Point* point_buffer_2, siz
     __m128i _m_p2 = _mm_loadu_si128((__m128i*) _p2);
     __m128i _m_dxdydz2 = _mm_sub_epi32(_m_p2, _m_p1);
 
+    __m128i _m_dxdydz_sq2 = _mm_mullo_epi32(_m_dxdydz2, _m_dxdydz2);
+    _mm_storeu_si128((__m128i*) _dxdydz_sq2, _m_dxdydz_sq2);
+    inc_bin(_dxdydz_sq2, bins + thread_num * BINS);
+
     __m128i _m_p3 = _mm_loadu_si128((__m128i*) _p3);
     __m128i _m_dxdydz3 = _mm_sub_epi32(_m_p3, _m_p1);
 
@@ -43,10 +47,6 @@ static inline void packed_dist(Point* point_buffer_1, Point* point_buffer_2, siz
 
     __m128i _m_p5 = _mm_loadu_si128((__m128i*) _p5);
     __m128i _m_dxdydz5 = _mm_sub_epi32(_m_p5, _m_p1);
-
-    __m128i _m_dxdydz_sq2 = _mm_mullo_epi32(_m_dxdydz2, _m_dxdydz2);
-    _mm_storeu_si128((__m128i*) _dxdydz_sq2, _m_dxdydz_sq2);
-    inc_bin(_dxdydz_sq2, bins + thread_num * BINS);
 
     __m128i _m_dxdydz_sq3 = _mm_mullo_epi32(_m_dxdydz3, _m_dxdydz3);
     _mm_storeu_si128((__m128i*) _dxdydz_sq3, _m_dxdydz_sq3);
