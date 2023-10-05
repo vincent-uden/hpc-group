@@ -99,6 +99,8 @@ int main(int argc, char** argv) {
 
     size_t rows_read;
 
+    // TODO(Vincent): Proper out of bounds checking for the last chunk since it
+    // isnt guaranteed to be divisible by 4
     for (size_t c1 = 0; c1 < n_chunks; ++c1) {
         rows_read = read_chunk(fp, c1 * args.chunk_size, args.chunk_size, point_buffer_1, read_buffer);
 
