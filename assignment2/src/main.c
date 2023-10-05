@@ -19,12 +19,12 @@ static inline void inc_bin(int32_t* dist_squared, int* bins) {
 }
 
 static inline void packed_dist(Point* point_buffer_1, Point* point_buffer_2, size_t i, size_t j, int* bins, int thread_num) {
-    int32_t _p1[4] = {(point_buffer_1 + i)->x, (point_buffer_1 + i)->y, (point_buffer_1 + i)->z, 0};
+    int32_t* _p1 = (int32_t*) point_buffer_1 + i;
 
-    int32_t _p2[4] = {(point_buffer_2 + j)->x, (point_buffer_2 + j)->y, (point_buffer_2 + j)->z, 0};
-    int32_t _p3[4] = {(point_buffer_2 + j + 1)->x, (point_buffer_2 + j + 1)->y, (point_buffer_2 + j + 1)->z, 0};
-    int32_t _p4[4] = {(point_buffer_2 + j + 2)->x, (point_buffer_2 + j + 2)->y, (point_buffer_2 + j + 2)->z, 0};
-    int32_t _p5[4] = {(point_buffer_2 + j + 3)->x, (point_buffer_2 + j + 3)->y, (point_buffer_2 + j + 3)->z, 0};
+    int32_t* _p2 = (int32_t*) point_buffer_2 + j;
+    int32_t* _p3 = (int32_t*) point_buffer_2 + j + 1;
+    int32_t* _p4 = (int32_t*) point_buffer_2 + j + 2;
+    int32_t* _p5 = (int32_t*) point_buffer_2 + j + 3;
 
     int32_t _dxdydz_sq2[4];
     int32_t _dxdydz_sq3[4];
@@ -35,29 +35,34 @@ static inline void packed_dist(Point* point_buffer_1, Point* point_buffer_2, siz
     __m128i _m_p2 = _mm_loadu_si128((__m128i*) _p2);
     __m128i _m_dxdydz2 = _mm_sub_epi32(_m_p2, _m_p1);
 
-    __m128i _m_dxdydz_sq2 = _mm_mullo_epi32(_m_dxdydz2, _m_dxdydz2);
-    _mm_storeu_si128((__m128i*) _dxdydz_sq2, _m_dxdydz_sq2);
-    inc_bin(_dxdydz_sq2, bins + thread_num * BINS);
-
+    _m_p1 = _mm_loadu_si128((__m128i*) _p1);
     __m128i _m_p3 = _mm_loadu_si128((__m128i*) _p3);
     __m128i _m_dxdydz3 = _mm_sub_epi32(_m_p3, _m_p1);
 
+    _m_p1 = _mm_loadu_si128((__m128i*) _p1);
     __m128i _m_p4 = _mm_loadu_si128((__m128i*) _p4);
     __m128i _m_dxdydz4 = _mm_sub_epi32(_m_p4, _m_p1);
 
+    _m_p1 = _mm_loadu_si128((__m128i*) _p1);
     __m128i _m_p5 = _mm_loadu_si128((__m128i*) _p5);
     __m128i _m_dxdydz5 = _mm_sub_epi32(_m_p5, _m_p1);
 
+    __m128i _m_dxdydz_sq2 = _mm_mullo_epi32(_m_dxdydz2, _m_dxdydz2);
+    _mm_storeu_si128((__m128i*) _dxdydz_sq2, _m_dxdydz_sq2);
+
     __m128i _m_dxdydz_sq3 = _mm_mullo_epi32(_m_dxdydz3, _m_dxdydz3);
     _mm_storeu_si128((__m128i*) _dxdydz_sq3, _m_dxdydz_sq3);
-    inc_bin(_dxdydz_sq3, bins + thread_num * BINS);
 
     __m128i _m_dxdydz_sq4 = _mm_mullo_epi32(_m_dxdydz4, _m_dxdydz4);
     _mm_storeu_si128((__m128i*) _dxdydz_sq4, _m_dxdydz_sq4);
-    inc_bin(_dxdydz_sq4, bins + thread_num * BINS);
 
     __m128i _m_dxdydz_sq5 = _mm_mullo_epi32(_m_dxdydz5, _m_dxdydz5);
     _mm_storeu_si128((__m128i*) _dxdydz_sq5, _m_dxdydz_sq5);
+
+    // All bins at the end is faster
+    inc_bin(_dxdydz_sq2, bins + thread_num * BINS);
+    inc_bin(_dxdydz_sq3, bins + thread_num * BINS);
+    inc_bin(_dxdydz_sq4, bins + thread_num * BINS);
     inc_bin(_dxdydz_sq5, bins + thread_num * BINS);
 }
 

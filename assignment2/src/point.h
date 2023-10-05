@@ -5,6 +5,7 @@ typedef struct {
     int x;
     int y;
     int z;
+    int pad;
 } Point;
 
 typedef struct {
