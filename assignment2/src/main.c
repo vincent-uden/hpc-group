@@ -99,39 +99,35 @@ int main(int argc, char** argv) {
 
     size_t rows_read;
 
-    // TODO(Vincent): Proper out of bounds checking for the last chunk since it
-    // isnt guaranteed to be divisible by 4
     for (size_t c1 = 0; c1 < n_chunks; ++c1) {
         rows_read = read_chunk(fp, c1 * args.chunk_size, args.chunk_size, point_buffer_1, read_buffer);
 
         #pragma omp parallel for
         for (size_t i = 0; i < rows_read; ++i) {
-            for (size_t j = i + 1; j + 3 < rows_read; j+=4) {
-                if (args.verbose) {
-                    printf("%zu %zu\n", i, j);
-                    printf("%zu %zu\n", i, j+1);
-                    printf("%zu %zu\n", i, j+2);
-                    printf("%zu %zu\n", i, j+3);
-                }
-                packed_dist(point_buffer_1, point_buffer_2, i, j, bins, omp_get_thread_num());
+            for (size_t j = i + 1; j < rows_read; ++j) {
+                distance(point_buffer_1 + i, point_buffer_1 + j, bins + omp_get_thread_num() * BINS);
             }
         }
 
         for (size_t c2 = c1 + 1; c2 < n_chunks; ++c2) {
             rows_read = read_chunk(fp, c2 * args.chunk_size, args.chunk_size, point_buffer_2, read_buffer);
 
-            #pragma omp parallel for
-            for (size_t i = 0; i < args.chunk_size; ++i) {
-                for (size_t j = 0; j < rows_read; j += 4) {
-                    if (args.verbose) {
-                        printf("%zu %zu\n", i, j);
-                        printf("%zu %zu\n", i, j+1);
-                        printf("%zu %zu\n", i, j+2);
-                        printf("%zu %zu\n", i, j+3);
+            if (rows_read == args.chunk_size) {
+                #pragma omp parallel for
+                for (size_t i = 0; i < args.chunk_size; ++i) {
+                    for (size_t j = 0; j + 3 < rows_read; j += 4) {
+                        packed_dist(point_buffer_1, point_buffer_2, i, j, bins, omp_get_thread_num());
                     }
-                    packed_dist(point_buffer_1, point_buffer_2, i, j, bins, omp_get_thread_num());
+                }
+            } else {
+                #pragma omp parallel for
+                for (size_t i = 0; i < args.chunk_size; ++i) {
+                    for (size_t j = 0; j < rows_read; ++j) {
+                        distance(point_buffer_1 + i, point_buffer_2 + j, bins + omp_get_thread_num() * BINS);
+                    }
                 }
             }
+
         }
     }
 
@@ -148,6 +144,5 @@ int main(int argc, char** argv) {
             printf("%02zu.%02zu %d\n", i / 100, i % 100, x);
         }
     }
-
     return 0;
 }

@@ -8,7 +8,7 @@
 #include "point.h"
 
 #define MAX_SQ 20000*20000 * 3
-#define DIST_FUNC calc_dist_intrin
+#define DIST_FUNC calc_dist
 
 static inline int calc_dist(Point* p1, Point* p2) {
     int dx = p2->x - p1->x;

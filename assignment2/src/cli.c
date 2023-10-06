@@ -6,7 +6,7 @@ CliArgs parse_cli(int argc, char** argv) {
 
     // Default values
     args.threads = 1;
-    args.chunk_size = 8096;
+    args.chunk_size = 2048;
     args.input_file = "./cells";
     args.verbose = 0;
 
