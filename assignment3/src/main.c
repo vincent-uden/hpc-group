@@ -10,29 +10,30 @@
 Result **result;
 char *write_queue;
 
+// Slave Threads
 int row_index;
 int row_size;
-
 mtx_t row_index_mtx;
+
+// Master Thread
+mtx_t work_mtx;
 cnd_t work_done;
+int next_row_to_write = 0;
 
 int main_slave(void* _arg) {
-    printf("Slave thread started\n");
-
     while (row_index < row_size) {
         // Lock mutex
         mtx_lock(&row_index_mtx);
 
         // Increment row index
         if (row_index < row_size) {
-            printf("Row index: %d\n", row_index);
-            row_index++;
+            write_queue[row_index++] = 1;
+            cnd_signal(&work_done);
         }
 
         // Unlock mutex
         mtx_unlock(&row_index_mtx);
     }
-
     return 0;
 }
 
@@ -47,9 +48,11 @@ int main(int argc, char** argv) {
     }
 
     thrd_t thrds[args.threads];
-    write_queue = malloc(sizeof(char) * row_size);
+    write_queue = calloc(row_size, sizeof(char));
 
     mtx_init(&row_index_mtx, mtx_plain);
+
+    mtx_init(&work_mtx, mtx_plain);
     cnd_init(&work_done);
 
     int r = 0;
@@ -62,6 +65,20 @@ int main(int argc, char** argv) {
             exit(1);
         }
     }
+
+    mtx_lock(&work_mtx);
+    while (next_row_to_write < args.rows) {
+        printf("Waiting\n");
+        cnd_wait(&work_done, &work_mtx);
+
+        while (write_queue[next_row_to_write] == 1) {
+            write_queue[next_row_to_write] = 2;
+            printf("Row written: %d\n", next_row_to_write);
+            next_row_to_write++;
+        }
+    }
+    mtx_unlock(&work_mtx);
+    printf("All rows written\n");
 
     // Clean up
     for (size_t t = 0; t < args.threads; t++) {
