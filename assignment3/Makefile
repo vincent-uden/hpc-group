@@ -1,5 +1,5 @@
 BINS = newton
-CFLAGS = -O3 -lpthreads -lm -march=native -Wall -Wextra -Wshadow -std=c99 -g
+CFLAGS = -O3 -lpthread -lm -march=native -Wall -Wextra -Wshadow -std=c99 -g
 
 .PHONY : all
 all : $(BINS)
