@@ -16,6 +16,6 @@ run : newton
 .PHONE : bin
 bin : newton
 
-newton : src/main.c src/newton.c src/cli.c src/slave.c
+newton : src/main.c src/newton.c src/cli.c src/slave.c src/ppm.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
