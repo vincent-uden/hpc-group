@@ -1,5 +1,5 @@
 BINS = newton
-CFLAGS = -O3 -lpthreads -lm -march=native -Wall -Wextra -Wshadow -std=c99 -g
+CFLAGS = -O3 -lpthread -lm -march=native -Wall -Wextra -Wshadow -std=c99 -g
 
 .PHONY : all
 all : $(BINS)
@@ -16,6 +16,6 @@ run : newton
 .PHONE : bin
 bin : newton
 
-newton : src/main.c src/newton.c src/cli.c src/slave.c
+newton : src/main.c src/newton.c src/cli.c src/slave.c src/ppm.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
