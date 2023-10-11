@@ -2,9 +2,11 @@
 #define NEWTON
 
 #include <complex.h>
+#include <stdint.h>
+#include <math.h>
 
-#define TYPE_ATTR char
-#define TYPE_CONV char
+#define TYPE_ATTR uint8_t
+#define TYPE_CONV uint8_t
 
 typedef struct
 {
@@ -12,6 +14,6 @@ typedef struct
     TYPE_CONV conv;
 } Result;
 
-void newton(float complex z, Result *r);
+void newton(float complex z, const int degree, Result *r);
 
 #endif
