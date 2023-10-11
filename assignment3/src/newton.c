@@ -8,7 +8,7 @@ void precompute_roots() {
     for ( int i = 1; i <= up_to_deg; i++) {
         float complex *roots_for_deg = (float complex *) malloc(sizeof(float complex) * i);
         for ( int j = 0; j < i; j++) {
-            roots_for_deg[j] = cexpf(2.0f * I * M_PI * j / (float)i);
+            roots_for_deg[j] = cexpf(2.0f * I * PI * j / (float)i);
         }
         roots[i] = roots_for_deg;
     }
