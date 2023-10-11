@@ -122,7 +122,7 @@ void newton(double complex z, const int degree, Result *r) {
         {
             double complex z2 = z*z;
             double complex z6 = z2*z2*z2;
-            z = ((6.0f/7.0f) * z6*z + 1.0f/7.0f) / z6;
+            z = ((6.0f/7.0f) * z) + (1.0f/7.0f) / z6;
             break;
         }
         case 8:
