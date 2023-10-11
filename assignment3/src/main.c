@@ -15,6 +15,7 @@ char *write_queue;
 // Slave Threads
 int row_index = 0;
 int row_size;
+int middle_row;
 mtx_t row_index_mtx;
 
 // Master Thread
@@ -47,6 +48,10 @@ int main(int argc, char** argv) {
 
     row_size = args.rows;
     degree = args.degree;
+    middle_row = (args.rows + 1) / 2;
+    if (args.rows % 2 == 0) {
+        ++middle_row;
+    }
 
     result = malloc(sizeof(Result*) * args.rows);
     for (size_t i = 0; i < args.rows; i++) {
@@ -90,7 +95,7 @@ int main(int argc, char** argv) {
 
     // Manage threads and write to file
     mtx_lock(&work_mtx);
-    while (next_row_to_write < args.rows) {
+    while (next_row_to_write < middle_row) {
         cnd_wait(&work_done, &work_mtx);
 
         while (write_queue[next_row_to_write] == 1) {
@@ -111,6 +116,27 @@ int main(int argc, char** argv) {
         }
     }
     mtx_unlock(&work_mtx);
+
+    int attr;
+    while (next_row_to_write < args.rows) {
+        for (size_t i = 0; i < row_size; ++i) {
+            write_row(
+                intensity_file,
+                result[args.rows - next_row_to_write][i].conv,
+                intensity_scheme
+            );
+            attr = result[args.rows - next_row_to_write][i].attr;
+            if (attr > 2) {
+                attr = args.degree + 4 - attr;
+            }
+            write_row(
+                attractor_file,
+                attr,
+                attractor_scheme
+            );
+        }
+        next_row_to_write++;
+    }
 
     // Clean up
     for (size_t t = 0; t < args.threads; t++) {
