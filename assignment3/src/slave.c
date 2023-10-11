@@ -1,27 +1,28 @@
 #include "slave.h"
 
-Result **result;
-char *write_queue;
 
-// Slave Threads
-int row_index;
-int row_size;
-mtx_t row_index_mtx;
-
-// Master Thread
-mtx_t work_mtx;
-cnd_t work_done;
-size_t next_row_to_write = 0;
-
-void slave_main(void *_args){
+int slave_main(void *_args){
+    int slave_row;
     // Start working on rows
     while (row_index < row_size) {
         // Lock mutex for row index
         mtx_lock(&row_index_mtx);
 
+        // Another thread may have incremented row_index while we were waiting
+        // for the lock.
+        if (row_index >= row_size) {
+            mtx_unlock(&row_index_mtx);
+            cnd_signal(&work_done);
+            return 0;
+        }
+
+        slave_row = row_index;
+        row_index++;
+        mtx_unlock(&row_index_mtx);
+
          // Map im part [-2, 2], starting from 2 -> -2
-        float im = 2.0 - row_index*4.0/row_size;
-        float re; 
+        double im = 2.0 - slave_row*4.0/row_size;
+        double re;
 
         // Loop to generate complex numbers for row index
 		for (size_t j = 0; j < row_size; j++){
@@ -30,18 +31,15 @@ void slave_main(void *_args){
             re = j*4.0/row_size - 2.0;
 
             // Define the complex number
-			float complex z = re + im*I;
+			double complex z = re + im*I;
 
-            // Compute newton 
-			newton(z, result[row_index]);
+            // Compute newton
+			newton(z, degree, result[slave_row] + j);
 		}
 
-        // Increment row index
-        if (row_index < row_size) {
-            write_queue[row_index++] = 1;
-            cnd_signal(&work_done);
-        }
-        // Unlock mutex 
-        mtx_unlock(&row_index_mtx);
+        write_queue[slave_row] = 1;
+        cnd_signal(&work_done);
     }
+
+    return 0;
 }
