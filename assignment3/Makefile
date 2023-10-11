@@ -19,3 +19,7 @@ bin : newton
 newton : src/main.c src/newton.c src/cli.c src/slave.c src/ppm.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
+
+test_newton: src/newton.c
+	mkdir -p build
+	gcc -o ./build/$@ $^ $(CFLAGS) -DNEWTON_MAIN
