@@ -80,8 +80,8 @@ int main(int argc, char** argv) {
 
     char* intensity_path = malloc(sizeof(char) * 30);
     char* attractor_path = malloc(sizeof(char) * 30);
-    sprintf(intensity_path, "newton_convergence%dd.ppm", args.degree);
-    sprintf(attractor_path, "newton_attractors%dd.ppm", args.degree);
+    sprintf(intensity_path, "newton_convergence_x%d.ppm", args.degree);
+    sprintf(attractor_path, "newton_attractors_x%d.ppm", args.degree);
     FILE* intensity_file = fopen(intensity_path, "w");
     FILE* attractor_file = fopen(attractor_path, "w");
 

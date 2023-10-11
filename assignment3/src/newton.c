@@ -63,6 +63,10 @@ void newton2(float complex z, Result *r) {
     }
 }
 
+static inline int fast_abs(double complex z, double lower_bound) {
+    return creal(z) * creal(z) + cimag(z) * cimag(z) < lower_bound * lower_bound;
+}
+
 void newton(double complex z, const int degree, Result *r) {
     for ( r->conv = 0, r->attr = INF_ATTR; r->conv < MAX_ITER; ++r->conv) {
         // Check stop cases
@@ -70,7 +74,7 @@ void newton(double complex z, const int degree, Result *r) {
             // To big
             return;
         }
-        if (cabs(z) < LOWER_BOUND) {
+        if (fast_abs(z, LOWER_BOUND)) {
             // To small
             r->attr = ZERO_ATTR;
             return;
@@ -79,7 +83,7 @@ void newton(double complex z, const int degree, Result *r) {
         // Check close
         for ( int i = 0; i < degree; i++) {
             double complex zt = z - roots[degree][i];
-            if (cabs(zt) < LOWER_BOUND) {
+            if (fast_abs(zt, LOWER_BOUND)) {
                 r->attr = ZERO_ATTR + 1 + i;
                 return;
             }
