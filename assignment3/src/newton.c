@@ -21,50 +21,28 @@ void free_roots() {
     free(roots);
 }
 
-
-void newton1(float complex z, Result *r) {
-    for ( r->conv = 0, r->attr = INF_ATTR; r->conv < MAX_ITER; ++r->conv) {
-        if (fabs(crealf(z)) > UPPER_BOUND | fabs(cimag(z)) > UPPER_BOUND) {
-            return;
-        }
-        if (cabsf(z) < LOWER_BOUND) {
-            r->attr = ZERO_ATTR;
-            return;
-        }
-        float complex zp = z - 1;
-        if (cabsf(zp) < LOWER_BOUND) {
-            r->attr = ZERO_ATTR + 1;
-            return;
-        }
-        z = CMPLXF(1.0f, 0.0f);
-    }
-}
-
-void newton2(float complex z, Result *r) {
-    for ( r->conv = 0, r->attr = INF_ATTR; r->conv < MAX_ITER; ++r->conv) {
-        if (fabs(crealf(z)) > UPPER_BOUND | fabs(cimag(z)) > UPPER_BOUND) {
-            return;
-        }
-        if (cabsf(z) < LOWER_BOUND) {
-            r->attr = ZERO_ATTR;
-            return;
-        }
-
-        {
-            // Check both at the same time by taking abs(real(z))
-            float complex zt = CMPLXF(fabs(creal(z)), cimag(z));
-            float complex zp = zt - 1;
-            if (cabsf(zp) < LOWER_BOUND) {
-                r->attr = ZERO_ATTR + 1;
-                return;
-            }
-        }
-        z = ((z*z) + 1) / (2 * z);
-    }
-}
-
 static inline int fast_abs(double complex z, double lower_bound) {
     return creal(z) * creal(z) + cimag(z) * cimag(z) < lower_bound * lower_bound;
+}
+
+static inline int fast_check_close_to_root(double complex z, const int degree, Result *r) {
+    // As roots to x^d - 1 always have conjugate solutions
+    // there is no need to check if we are close to a root that is below im = 0
+    // Instead we can just check the conjugate for all z with im(z) < 0
+    
+    int has_neg_im = cimag(z) < 0;
+    if (has_neg_im) z = conj(z);
+
+    int roots_with_pos_im = degree / 2 + 1;
+
+    for ( int i = 0; i < roots_with_pos_im; i++ ) {
+        double complex zt = z - roots[degree][i];
+        if (fast_abs(zt, LOWER_BOUND)) {
+            r->attr = ZERO_ATTR + 1 + i + has_neg_im * (roots_with_pos_im - 1);
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void newton(double complex z, const int degree, Result *r) {
@@ -81,41 +59,36 @@ void newton(double complex z, const int degree, Result *r) {
         }
 
         // Check close
-        for ( int i = 0; i < degree; i++) {
-            double complex zt = z - roots[degree][i];
-            if (fast_abs(zt, LOWER_BOUND)) {
-                r->attr = ZERO_ATTR + 1 + i;
-                return;
-            }
-        }
+        if (fast_check_close_to_root(z, degree, r)) return;
+
         switch (degree)
         {
         case 1: z = CMPLX(1.0f, 0.0f); break;
-        case 2: z = (0.5f * (z*z) + 0.5f) / z; break;
+        case 2: z = (0.5f * z) + (0.5f) / z; break;
         case 3:
         {
             double complex z2 = z*z;
-            z = ((2.0f / 3.0f) * z2*z + 1.0f / 3.0f) / z2;
+            z = ((2.0f / 3.0f) * z) + (1.0f / 3.0f) / z2;
             break;
         }
         case 4:
         {
             double complex z3 = z*z*z;
-            z = ((3.0f/4.0f) * z3*z + 1.0f / 4.0f) / z3;
+            z = ((3.0f/4.0f) * z) + (1.0f / 4.0f) / z3;
             break;
         }
         case 5:
         {
             double complex z2 = z*z;
             double complex z4 = z2*z2;
-            z = ((4.0f/5.0f) * z4*z + 1.0f/5.0f) / z4;
+            z = ((4.0f/5.0f) * z) + (1.0f/5.0f) / z4;
             break;
         }
         case 6:
         {
             double complex z2 = z*z;
             double complex z5 = z2*z2*z;
-            z = ((5.0f/6.0f) * z5*z + 1.0f/6.0f) / z5;
+            z = ((5.0f/6.0f) * z) + (1.0f/6.0f) / z5;
             break;
         }
         case 7:
@@ -129,7 +102,7 @@ void newton(double complex z, const int degree, Result *r) {
         {
             double complex z2 = z*z;
             double complex z7 = z2*z2*z2*z;
-            z = ((7.0f/8.0f) * z7*z + 1.0f/8.0f) / z7;
+            z = ((7.0f/8.0f) * z) + (1.0f/8.0f) / z7;
             break;
         }
         case 9:
@@ -137,19 +110,23 @@ void newton(double complex z, const int degree, Result *r) {
             double complex z2 = z*z;
             double complex z4 = z2*z2;
             double complex z8 = z4*z4;
-            z = ((8.0f/9.0f) * z8*z + 1.0f/9.0f) / z8;
+            z = ((8.0f/9.0f) * z) + (1.0f/9.0f) / z8;
             break;
         }
         case 10:
         {
             double complex z3 = z*z*z;
             double complex z9 = z3*z3*z3;
-            z = ((9.0f/10.0f) * z9*z + 1.0f/10.0f) / z9;
+            z = ((9.0f/10.0f) * z) + (1.0f/10.0f) / z9;
             break;
         }
-        default: exit(1); break;
+        default: 
+        {
+            printf("Unknown degree %d\n", degree); 
+            exit(1); 
+            break;
         }
-
+        }
     }
 }
 

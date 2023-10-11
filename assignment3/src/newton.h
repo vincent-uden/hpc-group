@@ -16,7 +16,6 @@
 #define MAX_ITER 128
 #define UPPER_BOUND 1e+10f
 #define LOWER_BOUND 1e-3f
-#define M_PI 3.14159265358979323846
 
 typedef struct
 {
