@@ -4,6 +4,7 @@
 #include <complex.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
 
 #define TYPE_ATTR uint8_t
 #define TYPE_CONV uint8_t
