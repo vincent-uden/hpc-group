@@ -40,7 +40,7 @@ CliArgs parse_cli(int argc, char** argv) {
                 printf("Options:\n");
                 printf("    -t, --threads <num_threads>   Specify the number of threads (positive integer), Default []\n");
                 printf("    -l, --lines <lines>           Specify the number of rows Default []\n");
-                printf("    -v, --verbose <verbose>      Use verbose output\n");
+                printf("    -v, --verbose <verbose>       Use verbose output\n");
                 printf("    -h, --help                    Display this help message\n");
                 printf("\n");
                 printf("Description:\n");
