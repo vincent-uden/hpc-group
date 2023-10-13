@@ -4,13 +4,13 @@
 int slave_main(void *_args){
     int slave_row;
     // Start working on rows
-    while (row_index < row_size) {
+    while (row_index < middle_row) {
         // Lock mutex for row index
         mtx_lock(&row_index_mtx);
 
         // Another thread may have incremented row_index while we were waiting
         // for the lock.
-        if (row_index >= row_size) {
+        if (row_index >= middle_row) {
             mtx_unlock(&row_index_mtx);
             cnd_signal(&work_done);
             return 0;
