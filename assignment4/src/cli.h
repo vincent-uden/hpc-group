@@ -7,8 +7,8 @@
 #include <getopt.h>
 
 typedef struct {
-    size_t threads;
-    size_t rows;
+    size_t n_iter;
+    float diff_c;
     int degree;
     int verbose;
 } CliArgs;
