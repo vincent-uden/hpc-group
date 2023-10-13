@@ -139,9 +139,9 @@ main(int argc, char **argv)
     }
 
     // Run diffusion steps on GPU
-    const cl_float cl_c = (cl_float)args.c;
+    const cl_float cl_c = (cl_float)args.diff_c;
     const cl_int cl_cols = (cl_int)cols;
-    for ( int i = 0; i < args.n; i++) {
+    for ( int i = 0; i < args.n_iter; i++) {
         if ( i % 2 == 0 ) {
             clSetKernelArg(kernel_diffusion_step, 0, sizeof(cl_mem), &gpu_mem_a);
             clSetKernelArg(kernel_diffusion_step, 1, sizeof(cl_mem), &gpu_mem_b);
@@ -162,7 +162,7 @@ main(int argc, char **argv)
         }
     }
 
-    if ( args.n % 2 == 0) {
+    if ( args.n_iter % 2 == 0) {
         if ( clEnqueueReadBuffer(command_queue,
             gpu_mem_a, CL_TRUE, 0, mem_size*sizeof(cl_float), data, 0, NULL, NULL)
             != CL_SUCCESS) {
