@@ -115,6 +115,12 @@ main(int argc, char **argv)
         return 1;
     }
 
+    cl_kernel kernel_reduction_diff = clCreateKernel(program, "reduction_diff", &error);
+    if ( error != CL_SUCCESS ) {
+        fprintf(stderr, "cannot create kernel reduction_diff\n");
+        return 1;
+    }
+
     // ############### SETUP DONE, CODE START ###############
 
     // Read args
@@ -127,7 +133,10 @@ main(int argc, char **argv)
 
     // Setup GPU memory
     int mem_size = (rows + 2) * (cols + 2);
-    cl_mem gpu_mem_a, gpu_mem_b;
+    const int global_redsz = 1024;
+    const int local_redsz = 32;
+    const int nmb_redgps = global_redsz / local_redsz;
+    cl_mem gpu_mem_a, gpu_mem_b, reduce_sum_mem;
 
     gpu_mem_a = clCreateBuffer(context, CL_MEM_READ_WRITE, mem_size*sizeof(cl_float), NULL, &error);
     if ( error != CL_SUCCESS ) {
@@ -137,6 +146,11 @@ main(int argc, char **argv)
     gpu_mem_b = clCreateBuffer(context, CL_MEM_READ_WRITE, mem_size*sizeof(cl_float), NULL, &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create gpu_mem_b c\n");
+        return 1;
+    }
+    reduce_sum_mem = clCreateBuffer(context, CL_MEM_WRITE_ONLY, nmb_redgps*sizeof(cl_float), NULL, &error);
+    if (error != CL_SUCCESS) {
+        fprintf(stderr, "cannot create buffer reduce_sum_mem\n");
         return 1;
     }
 
@@ -170,44 +184,88 @@ main(int argc, char **argv)
         }
     }
 
-    if ( args.n_iter % 2 == 0) {
-        if ( clEnqueueReadBuffer(command_queue,
-            gpu_mem_a, CL_TRUE, 0, mem_size*sizeof(cl_float), data, 0, NULL, NULL)
-            != CL_SUCCESS) {
-            fprintf(stderr, "cannot enqueue read of buffer gpu_mem_a\n");
-            return 1;
-        }
-    }
-    else {
-        if ( clEnqueueReadBuffer(command_queue,
-            gpu_mem_b, CL_TRUE, 0, mem_size*sizeof(cl_float), data, 0, NULL, NULL)
-            != CL_SUCCESS) {
-            fprintf(stderr, "cannot enqueue read of buffer gpu_mem_a\n");
-            return 1;
-        }
+    cl_mem final_temps;
+    if ( args.n_iter % 2 == 0) final_temps = gpu_mem_a;
+    else final_temps = gpu_mem_b;
+
+    // Reduce the sum on the GPU before transfering back to CPU
+    const cl_int sz_clint = (cl_int)mem_size;
+    clSetKernelArg(kernel_reduction, 0, sizeof(cl_mem), &final_temps);
+    clSetKernelArg(kernel_reduction, 1, local_redsz*sizeof(cl_float), NULL);
+    clSetKernelArg(kernel_reduction, 2, sizeof(cl_int), &sz_clint);
+    clSetKernelArg(kernel_reduction, 3, sizeof(cl_mem), &reduce_sum_mem);
+
+    size_t global_redsz_szt = (size_t) global_redsz;
+    size_t local_redsz_szt = (size_t) local_redsz;
+    if ( clEnqueueNDRangeKernel(command_queue,
+            kernel_reduction, 1, NULL, (const size_t *) &global_redsz_szt, (const size_t *) &local_redsz_szt,
+            0, NULL, NULL)
+        != CL_SUCCESS) {
+        fprintf(stderr, "cannot enqueue kernel reduction\n");
+        return 1;
     }
 
+    float *reduce_sum = malloc(nmb_redgps*sizeof(float));
+    if ( clEnqueueReadBuffer(command_queue,
+            reduce_sum_mem, CL_TRUE, 0, nmb_redgps*sizeof(cl_float), reduce_sum, 0, NULL, NULL)
+        != CL_SUCCESS) {
+        fprintf(stderr, "cannot enqueue read of reduce sum\n");
+        return 1;
+    }
+
+    float avg_temp = 0.f;
+    for (size_t ix = 0; ix < nmb_redgps; ++ix)
+        avg_temp += reduce_sum[ix];
+
+    // Calculate the final average
+    clSetKernelArg(kernel_reduction, 0, sizeof(cl_mem), &final_temps);
+    clSetKernelArg(kernel_reduction, 1, local_redsz*sizeof(cl_float), NULL);
+    clSetKernelArg(kernel_reduction, 2, sizeof(cl_int), &sz_clint);
+    clSetKernelArg(kernel_reduction, 3, sizeof(cl_float), &avg_temp);
+    clSetKernelArg(kernel_reduction, 4, sizeof(cl_mem), &reduce_sum_mem);
+
+    size_t global_redsz_szt = (size_t) global_redsz;
+    size_t local_redsz_szt = (size_t) local_redsz;
+    if ( clEnqueueNDRangeKernel(command_queue,
+            kernel_reduction_diff, 1, NULL, (const size_t *) &global_redsz_szt, (const size_t *) &local_redsz_szt,
+            0, NULL, NULL)
+        != CL_SUCCESS) {
+        fprintf(stderr, "cannot enqueue kernel reduction\n");
+        return 1;
+    }
+
+    float *reduce_sum = malloc(nmb_redgps*sizeof(float));
+    if ( clEnqueueReadBuffer(command_queue,
+            reduce_sum_mem, CL_TRUE, 0, nmb_redgps*sizeof(cl_float), reduce_sum, 0, NULL, NULL)
+        != CL_SUCCESS) {
+        fprintf(stderr, "cannot enqueue read of reduce sum\n");
+        return 1;
+    }
+
+    float abs_avg_temp = 0.f;
+    for (size_t ix = 0; ix < nmb_redgps; ++ix)
+        abs_avg_temp += reduce_sum[ix];
+    
     if ( clFinish(command_queue) != CL_SUCCESS ) {
         fprintf(stderr, "cannot finish queue\n");
         return 1;
     }
 
-    for ( int col = 1; col <= cols; col++) {
-        for ( int row = 1; row <= rows; row++) {
-            printf("%.3e ", data[row*cols + col]);
-        }
-        printf("\n");
-    }
+    printf("average: %f\n", avg_temp);
+    printf("average absolute difference: %f\n", abs_avg_temp);
 
     // Free variables
     free(data);
+    free(reduce_sum);
 
     clReleaseMemObject(gpu_mem_a);
     clReleaseMemObject(gpu_mem_b);
+    clReleaseMemObject(reduce_sum_mem);
 
     clReleaseProgram(program);
     clReleaseKernel(kernel_diffusion_step);
     clReleaseKernel(kernel_reduction);
+    clReleaseKernel(kernel_reduction_diff);
 
     clReleaseCommandQueue(command_queue);
     clReleaseContext(context);
