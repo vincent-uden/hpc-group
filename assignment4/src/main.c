@@ -7,6 +7,13 @@
 #include "cli.h"
 #include "read_input.h"
 
+void mock_read_data(float* data, int* rows, int* cols) {
+    *rows = 3;
+    *cols = 3;
+    data = calloc(sizeof(float), (*rows+2) * (*cols+2));
+    data[12] = 1e6;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -72,11 +79,11 @@ main(int argc, char **argv)
     }
 
     free(opencl_program_src);
-    
+
     error = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot build program. log:\n");
-        
+
         size_t log_size = 0;
         clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
 
@@ -94,7 +101,7 @@ main(int argc, char **argv)
 
         return 1;
     }
-    
+
     cl_kernel kernel_diffusion_step = clCreateKernel(program, "diffusion_step", &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create kernel diffusion_step\n");
@@ -115,10 +122,11 @@ main(int argc, char **argv)
     // Read input
     float *data;
     int rows, cols;
-    read_data(data, &rows, &cols);
+    //read_data(data, &rows, &cols);
+    mock_read_data(data, &rows, &cols);
 
     // Setup GPU memory
-    int mem_size = (rows + 2) * (cols + 2)
+    int mem_size = (rows + 2) * (cols + 2);
     cl_mem gpu_mem_a, gpu_mem_b;
 
     gpu_mem_a = clCreateBuffer(context, CL_MEM_READ_WRITE, mem_size*sizeof(cl_float), NULL, &error);
@@ -140,7 +148,7 @@ main(int argc, char **argv)
 
     // Run diffusion steps on GPU
     const cl_float cl_c = (cl_float)args.diff_c;
-    const cl_int cl_cols = (cl_int)cols;
+    const cl_int cl_cols = (cl_int)cols + 2;
     for ( int i = 0; i < args.n_iter; i++) {
         if ( i % 2 == 0 ) {
             clSetKernelArg(kernel_diffusion_step, 0, sizeof(cl_mem), &gpu_mem_a);
@@ -152,7 +160,7 @@ main(int argc, char **argv)
         }
         clSetKernelArg(kernel_diffusion_step, 2, sizeof(cl_float), &cl_c);
         clSetKernelArg(kernel_diffusion_step, 3, sizeof(cl_int), &cl_cols);
-        
+
         const size_t global_sz[] = {rows, cols};
         if ( clEnqueueNDRangeKernel(command_queue, kernel_diffusion_step,
                 2, NULL, (const size_t*) &global_sz, NULL, 0, NULL, NULL)
