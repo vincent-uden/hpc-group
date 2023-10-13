@@ -29,7 +29,7 @@ static inline int fast_check_close_to_root(double complex z, const int degree, R
     // As roots to x^d - 1 always have conjugate solutions
     // there is no need to check if we are close to a root that is below im = 0
     // Instead we can just check the conjugate for all z with im(z) < 0
-    
+
     int has_neg_im = cimag(z) < 0;
     if (has_neg_im) z = conj(z);
 
@@ -38,7 +38,9 @@ static inline int fast_check_close_to_root(double complex z, const int degree, R
     for ( int i = 0; i < roots_with_pos_im; i++ ) {
         double complex zt = z - roots[degree][i];
         if (fast_abs(zt, LOWER_BOUND)) {
-            r->attr = ZERO_ATTR + 1 + i + has_neg_im * (roots_with_pos_im - 1);
+            r->attr = ZERO_ATTR + 1 + i
+            if (has_neg_im && i != 0 && )
+            (roots_with_pos_im - 1);
             return 1;
         }
     }
