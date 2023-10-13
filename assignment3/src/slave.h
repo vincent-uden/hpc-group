@@ -17,6 +17,7 @@ extern mtx_t work_mtx;
 extern cnd_t work_done;
 extern size_t next_row_to_write;
 extern int degree;
+extern int middle_row;
 
 int slave_main(void *_args);
 
