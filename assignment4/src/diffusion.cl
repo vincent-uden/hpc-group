@@ -1,11 +1,19 @@
 __kernel
 void
-step(
+diffusion_step(
     __global const float *a,
-    __global const float *b,
+    __global float *b,
+    __const float c,
+    __const int cols
     )
 {
-    // TODO
+    int i = get_global_id(0) + 1;
+    int j = get_global_id(1) + 1;
+
+    int index = i*cols + j;
+
+    float avg_neigbours = (a[index + 1] + a[index - 1] + a[index + cols] + a[index - cols]) / 4;
+    b[index] = a[index] + c * (avg_neigbours - a[index]);
 }
 
 __kernel
@@ -23,7 +31,7 @@ reduction(
   int lix = get_local_id(0);
 
   float acc = 0;
-  for ( int cix = get_global_id(0); cix < sz; cix += gsz )
+  for ( int cix = gix; cix < sz; cix += gsz )
     acc += c[cix];
 
   scratch[lix] = acc;
