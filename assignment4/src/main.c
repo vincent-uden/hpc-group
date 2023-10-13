@@ -7,11 +7,12 @@
 #include "cli.h"
 #include "read_input.h"
 
-void mock_read_data(float* data, int* rows, int* cols) {
+float *mock_read_data(int* rows, int* cols) {
     *rows = 3;
     *cols = 3;
-    data = calloc(sizeof(float), (*rows+2) * (*cols+2));
+    float *data = (float*) calloc(sizeof(float), (*rows+2) * (*cols+2));
     data[12] = 1e6;
+    return data;
 }
 
 int
@@ -120,10 +121,9 @@ main(int argc, char **argv)
     CliArgs args = parse_cli(argc, argv);
 
     // Read input
-    float *data;
     int rows, cols;
-    //read_data(data, &rows, &cols);
-    mock_read_data(data, &rows, &cols);
+    // float *data = read_data(&rows, &cols);
+    float *data = mock_read_data(&rows, &cols);
 
     // Setup GPU memory
     int mem_size = (rows + 2) * (cols + 2);
