@@ -5,7 +5,7 @@ import argparse
 from itertools import chain
 
 makefile_template = """
-CFLAGS = -O3 -fopenmp -lm -march=native
+CFLAGS = -O3 -lpthread -lm -march=native -std=c11
 
 .PHONY : all
 all : TARGET
