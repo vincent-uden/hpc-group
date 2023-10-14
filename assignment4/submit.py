@@ -42,7 +42,7 @@ if __name__ == "__main__":
                     f.write("\n")
         src_files = ["src.c"] + headers
 
-    makefile_str = makefile_template.replace("SOURCE_FILES", " ".join(filter(lambda x: x[-1] != "h", src_files)))
+    makefile_str = makefile_template.replace("SOURCE_FILES", " ".join(filter(lambda x: x[-1] == "c", src_files)))
     makefile_str = makefile_str.replace("TARGET", args.target)
 
     for file in src_files:
