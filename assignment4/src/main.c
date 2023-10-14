@@ -7,13 +7,6 @@
 #include "cli.h"
 #include "read_input.h"
 
-float *mock_read_data(int* rows, int* cols) {
-    *rows = 3;
-    *cols = 3;
-    float *data = (float*) calloc(sizeof(float), (*rows+2) * (*cols+2));
-    data[12] = 1e6;
-    return data;
-}
 
 int
 main(int argc, char **argv)
@@ -127,12 +120,12 @@ main(int argc, char **argv)
     CliArgs args = parse_cli(argc, argv);
 
     // Read input
-    int rows, cols;
+    size_t rows, cols;
     // float *data = read_data(&rows, &cols);
-    float *data = mock_read_data(&rows, &cols);
+    float *data = read_data(&rows, &cols);
 
     // Setup GPU memory
-    int mem_size = (rows + 2) * (cols + 2);
+    size_t mem_size = (rows + 2) * (cols + 2);
     const int global_redsz = 1024;
     const int local_redsz = 32;
     const int nmb_redgps = global_redsz / local_redsz;
