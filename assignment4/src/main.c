@@ -115,9 +115,9 @@ main(int argc, char **argv)
         return 1;
     }
 
-    cl_kernel kernel_reduction_diff = clCreateKernel(program, "reduction_diff", &error);
+    cl_kernel kernel_diff_abs = clCreateKernel(program, "diff_abs", &error);
     if ( error != CL_SUCCESS ) {
-        fprintf(stderr, "cannot create kernel reduction_diff\n");
+        fprintf(stderr, "cannot create kernel diff_abs\n");
         return 1;
     }
 
@@ -162,7 +162,7 @@ main(int argc, char **argv)
 
     // Run diffusion steps on GPU
     const cl_float cl_c = (cl_float)args.diff_c;
-    const cl_int cl_cols = (cl_int)cols + 2;
+    const cl_int cl_cols = (cl_int)(cols + 2);
     for ( size_t i = 0; i < args.n_iter; i++) {
         if ( i % 2 == 0 ) {
             clSetKernelArg(kernel_diffusion_step, 0, sizeof(cl_mem), &gpu_mem_a);
@@ -184,9 +184,15 @@ main(int argc, char **argv)
         }
     }
 
-    cl_mem final_temps;
-    if ( args.n_iter % 2 == 0) final_temps = gpu_mem_a;
-    else final_temps = gpu_mem_b;
+    cl_mem final_temps, final_abs_diff;
+    if ( args.n_iter % 2 == 0) {
+        final_temps = gpu_mem_a;
+        final_abs_diff = gpu_mem_b;
+    }
+    else {
+        final_temps = gpu_mem_b;
+        final_abs_diff = gpu_mem_a;
+    }
 
     // Reduce the sum on the GPU before transfering back to CPU
     const cl_int sz_clint = (cl_int)mem_size;
@@ -218,15 +224,28 @@ main(int argc, char **argv)
         avg_temp += reduce_sum[ix];
     avg_temp /= rows * cols;
 
+    // Calculate the abs_diff from the average
+    clSetKernelArg(kernel_diff_abs, 0, sizeof(cl_mem), &final_temps);
+    clSetKernelArg(kernel_diff_abs, 1, sizeof(cl_mem), &final_abs_diff);
+    clSetKernelArg(kernel_diff_abs, 2, sizeof(cl_float), &avg_temp);
+    clSetKernelArg(kernel_diff_abs, 3, sizeof(cl_int), &cl_cols);
+
+    const size_t global_sz[] = {rows, cols};
+    if ( clEnqueueNDRangeKernel(command_queue, kernel_diff_abs,
+            2, NULL, (const size_t*) &global_sz, NULL, 0, NULL, NULL)
+        != CL_SUCCESS ) {
+        fprintf(stderr, "cannot enqueue kernel diff_abs\n");
+        return 1;
+    }
+
     // Calculate the final average
-    clSetKernelArg(kernel_reduction_diff, 0, sizeof(cl_mem), &final_temps);
-    clSetKernelArg(kernel_reduction_diff, 1, local_redsz*sizeof(cl_float), NULL);
-    clSetKernelArg(kernel_reduction_diff, 2, sizeof(cl_int), &sz_clint);
-    clSetKernelArg(kernel_reduction_diff, 3, sizeof(cl_float), &avg_temp);
-    clSetKernelArg(kernel_reduction_diff, 4, sizeof(cl_mem), &reduce_sum_mem);
+    clSetKernelArg(kernel_reduction, 0, sizeof(cl_mem), &final_abs_diff);
+    clSetKernelArg(kernel_reduction, 1, local_redsz*sizeof(cl_float), NULL);
+    clSetKernelArg(kernel_reduction, 2, sizeof(cl_int), &sz_clint);
+    clSetKernelArg(kernel_reduction, 3, sizeof(cl_mem), &reduce_sum_mem);
 
     if ( clEnqueueNDRangeKernel(command_queue,
-            kernel_reduction_diff, 1, NULL, (const size_t *) &global_redsz_szt, (const size_t *) &local_redsz_szt,
+            kernel_reduction, 1, NULL, (const size_t *) &global_redsz_szt, (const size_t *) &local_redsz_szt,
             0, NULL, NULL)
         != CL_SUCCESS) {
         fprintf(stderr, "cannot enqueue kernel reduction\n");
@@ -264,7 +283,7 @@ main(int argc, char **argv)
     clReleaseProgram(program);
     clReleaseKernel(kernel_diffusion_step);
     clReleaseKernel(kernel_reduction);
-    clReleaseKernel(kernel_reduction_diff);
+    clReleaseKernel(kernel_diff_abs);
 
     clReleaseCommandQueue(command_queue);
     clReleaseContext(context);
