@@ -218,11 +218,11 @@ main(int argc, char **argv)
         avg_temp += reduce_sum[ix];
 
     // Calculate the final average
-    clSetKernelArg(kernel_reduction, 0, sizeof(cl_mem), &final_temps);
-    clSetKernelArg(kernel_reduction, 1, local_redsz*sizeof(cl_float), NULL);
-    clSetKernelArg(kernel_reduction, 2, sizeof(cl_int), &sz_clint);
-    clSetKernelArg(kernel_reduction, 3, sizeof(cl_float), &avg_temp);
-    clSetKernelArg(kernel_reduction, 4, sizeof(cl_mem), &reduce_sum_mem);
+    clSetKernelArg(kernel_reduction_diff, 0, sizeof(cl_mem), &final_temps);
+    clSetKernelArg(kernel_reduction_diff, 1, local_redsz*sizeof(cl_float), NULL);
+    clSetKernelArg(kernel_reduction_diff, 2, sizeof(cl_int), &sz_clint);
+    clSetKernelArg(kernel_reduction_diff, 3, sizeof(cl_float), &avg_temp);
+    clSetKernelArg(kernel_reduction_diff, 4, sizeof(cl_mem), &reduce_sum_mem);
 
     if ( clEnqueueNDRangeKernel(command_queue,
             kernel_reduction_diff, 1, NULL, (const size_t *) &global_redsz_szt, (const size_t *) &local_redsz_szt,
