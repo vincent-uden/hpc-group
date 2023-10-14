@@ -25,7 +25,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     src_files = os.listdir("./src")
-    src_files = list(filter(lambda x: (not x.startswith("benchmark")) and (not x.startswith("test")),src_files))
+    src_files = list(filter(lambda x: x.split('.')[-1] in ['c', 'h', 'cl'],src_files))
 
     if os.path.exists("submit"):
         shutil.rmtree("submit")
