@@ -216,6 +216,7 @@ main(int argc, char **argv)
     float avg_temp = 0.f;
     for (size_t ix = 0; ix < nmb_redgps; ++ix)
         avg_temp += reduce_sum[ix];
+    avg_temp /= rows * cols;
 
     // Calculate the final average
     clSetKernelArg(kernel_reduction_diff, 0, sizeof(cl_mem), &final_temps);
@@ -242,6 +243,7 @@ main(int argc, char **argv)
     float abs_avg_temp = 0.f;
     for (size_t ix = 0; ix < nmb_redgps; ++ix)
         abs_avg_temp += reduce_sum[ix];
+    abs_avg_temp /= rows * cols;
     
     if ( clFinish(command_queue) != CL_SUCCESS ) {
         fprintf(stderr, "cannot finish queue\n");
