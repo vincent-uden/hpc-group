@@ -163,7 +163,7 @@ main(int argc, char **argv)
     // Run diffusion steps on GPU
     const cl_float cl_c = (cl_float)args.diff_c;
     const cl_int cl_cols = (cl_int)cols + 2;
-    for ( int i = 0; i < args.n_iter; i++) {
+    for ( size_t i = 0; i < args.n_iter; i++) {
         if ( i % 2 == 0 ) {
             clSetKernelArg(kernel_diffusion_step, 0, sizeof(cl_mem), &gpu_mem_a);
             clSetKernelArg(kernel_diffusion_step, 1, sizeof(cl_mem), &gpu_mem_b);
@@ -224,8 +224,6 @@ main(int argc, char **argv)
     clSetKernelArg(kernel_reduction, 3, sizeof(cl_float), &avg_temp);
     clSetKernelArg(kernel_reduction, 4, sizeof(cl_mem), &reduce_sum_mem);
 
-    size_t global_redsz_szt = (size_t) global_redsz;
-    size_t local_redsz_szt = (size_t) local_redsz;
     if ( clEnqueueNDRangeKernel(command_queue,
             kernel_reduction_diff, 1, NULL, (const size_t *) &global_redsz_szt, (const size_t *) &local_redsz_szt,
             0, NULL, NULL)
@@ -234,7 +232,6 @@ main(int argc, char **argv)
         return 1;
     }
 
-    float *reduce_sum = malloc(nmb_redgps*sizeof(float));
     if ( clEnqueueReadBuffer(command_queue,
             reduce_sum_mem, CL_TRUE, 0, nmb_redgps*sizeof(cl_float), reduce_sum, 0, NULL, NULL)
         != CL_SUCCESS) {
