@@ -7,8 +7,8 @@ diffusion_step(
     __const int cols
     )
 {
-  int i = get_global_id(0) + 1;
-  int j = get_global_id(1) + 1;
+  int i = get_global_id(0);
+  int j = get_global_id(1);
   int index = i*cols + j;
   float sum = -a[index];
   if (j > 0) {
