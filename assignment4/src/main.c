@@ -109,28 +109,28 @@ int main(int argc, char **argv) {
     size_t cols = 10000;
 
     cl_mem gpu_a, gpu_b;
-    gpu_a = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                       (rows+2)*(cols+2) * sizeof(double), NULL, &error);
+    gpu_a = clCreateBuffer(context, CL_MEM_READ_WRITE,
+                       (rows+2)*(cols+2) * sizeof(float), NULL, &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create buffer a\n");
         return 1;
     }
-    gpu_b = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                       (rows+2)*(cols+2) * sizeof(double), NULL, &error);
+    gpu_b = clCreateBuffer(context, CL_MEM_READ_WRITE,
+                       (rows+2)*(cols+2) * sizeof(float), NULL, &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create buffer b\n");
         return 1;
     }
 
-    double* cpu_a = read_data(&rows, &cols);
-    double* cpu_b = calloc((rows+2)*(cols+2), sizeof(double));
+    float* cpu_a = read_data(&rows, &cols);
+    float* cpu_b = calloc((rows+2)*(cols+2), sizeof(double));
     printf("Read data\n");
 
-    if ( clEnqueueWriteBuffer(command_queue, gpu_a, CL_TRUE, 0, (rows+2)*(cols+2) * sizeof(double), cpu_a, 0, NULL, NULL) != CL_SUCCESS ) {
+    if ( clEnqueueWriteBuffer(command_queue, gpu_a, CL_TRUE, 0, (rows+2)*(cols+2) * sizeof(float), cpu_a, 0, NULL, NULL) != CL_SUCCESS ) {
         fprintf(stderr, "cannot enqueue write of buffer a\n");
         return 1;
     }
-    if ( clEnqueueWriteBuffer(command_queue, gpu_b, CL_TRUE, 0, (rows+2)*(cols+2) * sizeof(double), cpu_b, 0, NULL, NULL) != CL_SUCCESS ) {
+    if ( clEnqueueWriteBuffer(command_queue, gpu_b, CL_TRUE, 0, (rows+2)*(cols+2) * sizeof(float), cpu_b, 0, NULL, NULL) != CL_SUCCESS ) {
         fprintf(stderr, "cannot enqueue write of buffer b\n");
         return 1;
     }
@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
             clSetKernelArg(kernel, 0, sizeof(cl_mem), &gpu_b);
             clSetKernelArg(kernel, 1, sizeof(cl_mem), &gpu_a);
         }
-        clSetKernelArg(kernel, 2, sizeof(double), &args.diff_c);
+        clSetKernelArg(kernel, 2, sizeof(float), &args.diff_c);
         clSetKernelArg(kernel, 3, sizeof(int), &cols_with_padding);
 
         const size_t global_sz[] = {rows, cols};

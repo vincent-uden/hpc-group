@@ -5,6 +5,6 @@
 #include <stdlib.h>
 
 // Returns padded matrix, size of box
-double* read_data(size_t *rows, size_t *cols);
+float* read_data(size_t *rows, size_t *cols);
 
 #endif

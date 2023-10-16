@@ -1,9 +1,9 @@
 __kernel
 void
 diffusion_step(
-    __global const double *a,
-    __global double *b,
-    __const double c,
+    __global const float *a,
+    __global float *b,
+    __const float c,
     __const int cols
     )
 {

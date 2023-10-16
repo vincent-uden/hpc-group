@@ -1,6 +1,6 @@
 #include "read_input.h"
 
-double* read_data(size_t *rows, size_t *cols) {
+float* read_data(size_t *rows, size_t *cols) {
     // Create file pointer
     FILE *file = fopen("./init", "r");
 
@@ -15,7 +15,7 @@ double* read_data(size_t *rows, size_t *cols) {
     // printf("box [%zu x %zu]\n", *rows, *cols);
 
     // Initialize data matrix
-    double* data = calloc((*rows + 2) * (*cols + 2), sizeof(double));
+    float* data = calloc((*rows + 2) * (*cols + 2), sizeof(float));
 
     if (data == NULL) {
         printf("Memory allocation failed.\n");
