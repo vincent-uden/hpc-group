@@ -123,19 +123,17 @@ int main(int argc, char **argv) {
     }
 
     float* cpu_a = read_data(&rows, &cols);
-    float* cpu_b = calloc((rows+2)*(cols+2), sizeof(double));
+    float* cpu_b = calloc((rows)*(cols), sizeof(double));
     printf("Read data\n");
 
-    if ( clEnqueueWriteBuffer(command_queue, gpu_a, CL_TRUE, 0, (rows+2)*(cols+2) * sizeof(float), cpu_a, 0, NULL, NULL) != CL_SUCCESS ) {
+    if ( clEnqueueWriteBuffer(command_queue, gpu_a, CL_TRUE, 0, (rows)*(cols) * sizeof(float), cpu_a, 0, NULL, NULL) != CL_SUCCESS ) {
         fprintf(stderr, "cannot enqueue write of buffer a\n");
         return 1;
     }
-    if ( clEnqueueWriteBuffer(command_queue, gpu_b, CL_TRUE, 0, (rows+2)*(cols+2) * sizeof(float), cpu_b, 0, NULL, NULL) != CL_SUCCESS ) {
+    if ( clEnqueueWriteBuffer(command_queue, gpu_b, CL_TRUE, 0, (rows)*(cols) * sizeof(float), cpu_b, 0, NULL, NULL) != CL_SUCCESS ) {
         fprintf(stderr, "cannot enqueue write of buffer b\n");
         return 1;
     }
-
-    int cols_with_padding = cols + 2;
 
     for (size_t n = 0; n < args.n_iter; ++n) {
         if (n % 2 == 0) {
@@ -146,7 +144,7 @@ int main(int argc, char **argv) {
             clSetKernelArg(kernel, 1, sizeof(cl_mem), &gpu_a);
         }
         clSetKernelArg(kernel, 2, sizeof(float), &args.diff_c);
-        clSetKernelArg(kernel, 3, sizeof(int), &cols_with_padding);
+        clSetKernelArg(kernel, 3, sizeof(int), &cols);
 
         const size_t global_sz[] = {rows, cols};
         if ( clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, (const size_t *) global_sz, NULL, 0, NULL, NULL) != CL_SUCCESS ) {

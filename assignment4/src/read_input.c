@@ -15,7 +15,7 @@ float* read_data(size_t *rows, size_t *cols) {
     // printf("box [%zu x %zu]\n", *rows, *cols);
 
     // Initialize data matrix
-    float* data = calloc((*rows + 2) * (*cols + 2), sizeof(float));
+    float* data = calloc((*rows) * (*cols), sizeof(float));
 
     if (data == NULL) {
         printf("Memory allocation failed.\n");
@@ -30,7 +30,7 @@ float* read_data(size_t *rows, size_t *cols) {
     // Read values for each coordinates
 	while(fscanf(file, "%d %d %lf", &x, &y, &val) != EOF) {
 		// printf(" x y v = %d %d %f\n", x, y, val);
-		data[(x+1)*(*cols+2) + (y+1)] = val;
+		data[(x)*(*cols) + (y)] = val;
 	}
 
 	fclose(file);
