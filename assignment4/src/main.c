@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "cannot get device\n" );
         return 1;
     }
+    printf("There are %u devices", nmb_devices);
 
     cl_context context;
     cl_context_properties properties[] = {
