@@ -8,6 +8,7 @@ CliArgs parse_cli(int argc, char** argv) {
     args.n_iter = 1;
     args.diff_c = 1.0f;
     args.verbose = 0;
+    args.kernel_size = 1;
 
     int c;
     int opt_index = 0;
@@ -17,17 +18,21 @@ CliArgs parse_cli(int argc, char** argv) {
         {"n_iterations",  required_argument , 0, 'n'},
         {"diffusion_c", required_argument, 0, 'd'},
         {"verbose", optional_argument, 0, 'v'},
+        {"kernel_size", optional_argument, 0, 'k'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "n:d:vh", long_options, &opt_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "n:d:k:vh", long_options, &opt_index)) != -1) {
         switch (c) {
             case 'n':
                 args.n_iter = atoi(optarg);
                 break;
             case 'd':
                 args.diff_c = atof(optarg);
+                break;
+            case 'k':
+                args.kernel_size = atof(optarg);
                 break;
             case 'v':
                 args.verbose = 1;
@@ -39,6 +44,7 @@ CliArgs parse_cli(int argc, char** argv) {
                 printf("Options:\n");
                 printf("    -n, --n_iterations <n_iterations>   Specify the number of threads (positive integer), Default []\n");
                 printf("    -d, --diffusion_c <diffusion_c>     Specify the number of rows Default []\n");
+                printf("    -k, --kernel_size <kernel_size>     Specify the size of the GPU kernels\n");
                 printf("    -v, --verbose <verbose>             Use verbose output\n");
                 printf("    -h, --help                          Display this help message\n");
                 printf("\n");
@@ -53,7 +59,7 @@ CliArgs parse_cli(int argc, char** argv) {
                 break;
         }
     }
-    
+
     return args;
 }
 

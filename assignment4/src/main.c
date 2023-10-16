@@ -11,6 +11,9 @@
 int
 main(int argc, char **argv)
 {
+    // Read args
+    CliArgs args = parse_cli(argc, argv);
+
     cl_int error;
 
     cl_platform_id platform_id;
@@ -116,8 +119,6 @@ main(int argc, char **argv)
 
     // ############### SETUP DONE, CODE START ###############
 
-    // Read args
-    CliArgs args = parse_cli(argc, argv);
 
     // Read input
     size_t rows, cols;
@@ -156,7 +157,7 @@ main(int argc, char **argv)
     // Run diffusion steps on GPU
     const cl_float cl_c = (cl_float)args.diff_c;
     const cl_int cl_cols = (cl_int)(cols + 2);
-    const int kernel_size = 2;
+    const int kernel_size = args.kernel_size;
     for ( size_t i = 0; i < args.n_iter; i++) {
         if ( i % 2 == 0 ) {
             clSetKernelArg(kernel_diffusion_step, 0, sizeof(cl_mem), &gpu_mem_a);
@@ -258,7 +259,7 @@ main(int argc, char **argv)
     for (size_t ix = 0; ix < nmb_redgps; ++ix)
         abs_avg_temp += reduce_sum[ix];
     abs_avg_temp /= rows * cols;
-    
+
     if ( clFinish(command_queue) != CL_SUCCESS ) {
         fprintf(stderr, "cannot finish queue\n");
         return 1;
