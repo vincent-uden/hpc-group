@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    cl_kernel kernel = clCreateKernel(program, "diffusion", &error);
+    cl_kernel kernel = clCreateKernel(program, "diffusion_step", &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create kernel\n");
         return 1;
