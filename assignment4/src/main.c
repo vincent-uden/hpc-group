@@ -132,6 +132,10 @@ main(int argc, char **argv)
     const int nmb_redgps = global_redsz / local_redsz;
     cl_mem gpu_mem_a, gpu_mem_b, reduce_sum_mem;
 
+    if (args.verbose) {
+        printf("Using Kernel Size: %d\n", args.kernel_size);
+    }
+
     gpu_mem_a = clCreateBuffer(context, CL_MEM_READ_WRITE, mem_size*sizeof(cl_float), NULL, &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create gpu_mem_a c\n");
