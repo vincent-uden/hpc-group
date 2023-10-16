@@ -132,9 +132,12 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    int cols_with_padding = cols + 2;
+
     clSetKernelArg(kernel, 0, sizeof(cl_mem), &gpu_a);
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &gpu_b);
-    // TODO(Vincent): More arugments here
+    clSetKernelArg(kernel, 2, sizeof(double), &args.diff_c);
+    clSetKernelArg(kernel, 3, sizeof(int), &cols_with_padding);
 
     const size_t global_sz[] = {rows, cols};
     if ( clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, (const size_t *) global_sz, NULL, 0, NULL, NULL) != CL_SUCCESS ) {
