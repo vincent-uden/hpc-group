@@ -21,14 +21,11 @@ int main(int argc, char **argv) {
     }
 
     cl_device_id device_id;
-    cl_device_id device_list[10];
     cl_uint nmb_devices;
-    if ( clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, device_list, &nmb_devices) != CL_SUCCESS ) {
+    if ( clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &device_id, &nmb_devices) != CL_SUCCESS ) {
         fprintf(stderr, "cannot get device\n" );
         return 1;
     }
-    printf("There are %u devices", nmb_devices);
-    device_id = device_list[nmb_devices - 1];
 
     cl_context context;
     cl_context_properties properties[] = {
@@ -140,11 +137,16 @@ int main(int argc, char **argv) {
 
     int cols_with_padding = cols + 2;
 
-    clSetKernelArg(kernel, 0, sizeof(cl_mem), &gpu_a);
-    clSetKernelArg(kernel, 1, sizeof(cl_mem), &gpu_b);
-    clSetKernelArg(kernel, 2, sizeof(double), &args.diff_c);
-    clSetKernelArg(kernel, 3, sizeof(int), &cols_with_padding);
     for (size_t n = 0; n < args.n_iter; ++n) {
+        if (n % 2 == 0) {
+            clSetKernelArg(kernel, 0, sizeof(cl_mem), &gpu_a);
+            clSetKernelArg(kernel, 1, sizeof(cl_mem), &gpu_b);
+        } else {
+            clSetKernelArg(kernel, 0, sizeof(cl_mem), &gpu_b);
+            clSetKernelArg(kernel, 1, sizeof(cl_mem), &gpu_a);
+        }
+        clSetKernelArg(kernel, 2, sizeof(double), &args.diff_c);
+        clSetKernelArg(kernel, 3, sizeof(int), &cols_with_padding);
 
         const size_t global_sz[] = {rows, cols};
         if ( clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, (const size_t *) global_sz, NULL, 0, NULL, NULL) != CL_SUCCESS ) {
