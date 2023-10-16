@@ -108,13 +108,13 @@ int main(int argc, char **argv) {
 
     cl_mem gpu_a, gpu_b;
     gpu_a = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                       rows*cols * sizeof(double), NULL, &error);
+                       (rows+2)*(cols+2) * sizeof(double), NULL, &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create buffer a\n");
         return 1;
     }
     gpu_b = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                       rows*cols * sizeof(double), NULL, &error);
+                       (rows+2)*(cols+2) * sizeof(double), NULL, &error);
     if ( error != CL_SUCCESS ) {
         fprintf(stderr, "cannot create buffer b\n");
         return 1;
