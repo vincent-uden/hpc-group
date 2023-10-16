@@ -4,7 +4,7 @@ diffusion_step(
     __global const double *a,
     __global double *b,
     __const double c,
-    __const int cols,
+    __const int cols
     )
 {
   int i = get_global_id(0) + 1;
