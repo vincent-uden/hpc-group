@@ -12,6 +12,6 @@ diffusion_step(
 
   int index = i*cols + j;
 
-  float avg_neigbours = (a[index + 1] + a[index - 1] + a[index + cols] + a[index - cols]) / 4;
+  double avg_neigbours = (a[index + 1] + a[index - 1] + a[index + cols] + a[index - cols]) / 4.0;
   b[index] = a[index] + c * (avg_neigbours - a[index]);
 }

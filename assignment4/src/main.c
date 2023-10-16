@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "cannot create program\n");
         return 1;
     }
+    printf("Created program\n");
 
     free(opencl_program_src);
 
@@ -101,6 +102,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "cannot create kernel\n");
         return 1;
     }
+    printf("Created kernel\n");
 
 
     size_t rows = 10000;
@@ -122,6 +124,7 @@ int main(int argc, char **argv) {
 
     double* cpu_a = read_data(&rows, &cols);
     double* cpu_b = calloc((rows+2)*(cols+2), sizeof(double));
+    printf("Read data\n");
 
     if ( clEnqueueWriteBuffer(command_queue, gpu_a, CL_TRUE, 0, (rows+2)*(cols+2) * sizeof(double), cpu_a, 0, NULL, NULL) != CL_SUCCESS ) {
         fprintf(stderr, "cannot enqueue write of buffer a\n");
@@ -151,6 +154,7 @@ int main(int argc, char **argv) {
             return 1;
         }
     }
+    printf("Done queueing\n");
 
     if ( clFinish(command_queue) != CL_SUCCESS ) {
         fprintf(stderr, "cannot finish queue\n");
@@ -159,7 +163,7 @@ int main(int argc, char **argv) {
 
     // TODO(Vincent): Reduction
 
-    printf("Done!");
+    printf("Done!\n");
 
     free(cpu_a);
     free(cpu_b);
