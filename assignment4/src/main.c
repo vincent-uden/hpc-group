@@ -21,13 +21,14 @@ int main(int argc, char **argv) {
     }
 
     cl_device_id device_id;
+    cl_device_id device_list[10];
     cl_uint nmb_devices;
-    if ( clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &device_id, &nmb_devices) != CL_SUCCESS ) {
+    if ( clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, device_list, &nmb_devices) != CL_SUCCESS ) {
         fprintf(stderr, "cannot get device\n" );
         return 1;
     }
     printf("There are %u devices", nmb_devices);
-    device_id = *(&device_id + 1);
+    device_id = device_list[nmb_devices - 1];
 
     cl_context context;
     cl_context_properties properties[] = {
