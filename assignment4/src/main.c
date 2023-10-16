@@ -27,6 +27,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     printf("There are %u devices", nmb_devices);
+    device_id = *(&device_id + 1);
 
     cl_context context;
     cl_context_properties properties[] = {
