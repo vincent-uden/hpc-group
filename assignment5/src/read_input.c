@@ -1,10 +1,10 @@
 #include "read_input.h"
 
-double* read_data(size_t *rows, size_t *cols) {
+float * read_data(size_t *rows, size_t *cols) {
     // Create file pointer
-    FILE *file = fopen("./init", "r");
+    FILE *file = fopen("init", "r");
 
-    // Error handling
+    // Error handling 
 	if(file==NULL) {
 	 	printf("ERROR: could not find file init ...\n");
         exit(1);
@@ -15,7 +15,7 @@ double* read_data(size_t *rows, size_t *cols) {
     // printf("box [%zu x %zu]\n", *rows, *cols);
 
     // Initialize data matrix
-    double* data = calloc((*rows + 2) * (*cols + 2), sizeof(double));
+    float *data = (float *)calloc((*rows + 2) * (*cols + 2), sizeof(float));
 
     if (data == NULL) {
         printf("Memory allocation failed.\n");
@@ -25,14 +25,14 @@ double* read_data(size_t *rows, size_t *cols) {
 
     // Initialize coordinates and val
     int x, y;
-	double val;
+	float val;
 
     // Read values for each coordinates
-	while(fscanf(file, "%d %d %lf", &x, &y, &val) != EOF) {
+	while(fscanf(file, "%d %d %f", &x, &y, &val) != EOF) {
 		// printf(" x y v = %d %d %f\n", x, y, val);
-		data[(x+1)*(*cols+2) + (y+1)] = val;
+		data[(x+1)*(*rows+2) + (y+1)] = val;
 	}
-
+    
 	fclose(file);
 
     return data;
@@ -45,14 +45,14 @@ int main(int argc, char** argv) {
     size_t rows, cols;
 
     data = read_data(&rows, &cols);
-
+    
     for (size_t i = 0; i < (rows + 2) * (cols + 2); i++) {
-        if (i % (cols + 2) == 0) {
+        if (i % (cols + 2) == 0) { 
             printf("\n");
         }
         printf("%.6f   ", data[i]);
     }
-
+    
     printf("\nRows: %zu\n", rows);
     printf("Cols: %zu \n", cols);
     printf("Data_element: %.6f", data[12]);
