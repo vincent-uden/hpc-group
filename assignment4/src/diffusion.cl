@@ -4,21 +4,16 @@ diffusion_step(
     __global const float *a,
     __global float *b,
     __const float c,
-    __const int cols,
-    __const int kernel_size
+    __const int cols
     )
 {
-  for ( int offset_i = 0; offset_i < kernel_size; offset_i++ ) {
-    for ( int offset_j = 0; offset_j < kernel_size; offset_j++ ) {
-      int i = kernel_size * get_global_id(0) + offset_i + 1;
-      int j = kernel_size * get_global_id(1) + offset_j + 1;
+  int i = get_global_id(1) + 1;
+  int j = get_global_id(0) + 1;
 
-      int index = i*cols + j;
+  int index = i*cols + j;
 
-      float avg_neigbours = (a[index + 1] + a[index - 1] + a[index + cols] + a[index - cols]) / 4;
-      b[index] = a[index] + c * (avg_neigbours - a[index]);
-    }
-  }
+  float avg_neigbours = (a[index + 1] + a[index - 1] + a[index + cols] + a[index - cols]) / 4;
+  b[index] = a[index] + c * (avg_neigbours - a[index]);
 }
 
 __kernel
