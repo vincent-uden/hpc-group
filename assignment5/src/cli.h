@@ -9,9 +9,7 @@
 typedef struct {
     size_t n_iter;
     float diff_c;
-    int degree;
     int verbose;
-    int kernel_size;
 } CliArgs;
 
 CliArgs parse_cli(int argc, char** argv);
