@@ -7,8 +7,8 @@ void diffusion_step(double* prev_step, double* next_step, int rows, int cols, do
             next_step[index] = prev_step[index] + c * ((
                 prev_step[index - 1] +
                 prev_step[index + 1] +
-                prev_step[index + rows + 2] +
-                prev_step[index - rows - 2]
+                prev_step[index + cols + 2] +
+                prev_step[index - cols - 2]
             ) / 4.0f - prev_step[index]);
         }
     }
