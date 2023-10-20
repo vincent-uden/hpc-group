@@ -25,44 +25,44 @@ main(int argc, char **argv)
 
     // Read data
     size_t rows, cols;
-    float *dataA = read_data(mpi_rank, nmb_mpi_proc, &rows, &cols);
-    float *dataB = calloc((rows + 2)*(cols+2), sizeof(float));
+    double *dataA = read_data(mpi_rank, nmb_mpi_proc, &rows, &cols);
+    double *dataB = calloc((rows + 2)*(cols+2), sizeof(double));
 
     if (args.verbose && mpi_rank == 0)
         printf("Data read\n");
 
     for ( size_t step = 0; step < args.n_iter; step++) {
-        float *data = step % 2 ? dataB : dataA;
-        float *next_data = step % 2 ? dataA : dataB;
+        double *data = step % 2 ? dataB : dataA;
+        double *next_data = step % 2 ? dataA : dataB;
 
         if (args.verbose && mpi_rank == 0)
             printf("In step %lu\n", step);
 
         // Sync BC
-        float *padding_up = data + 1;
-        float *padding_down = data + (cols + 2) * (rows + 1) + 1;
-        float *data_first = data + cols + 2 + 1;
-        float *data_last = padding_down - cols - 2 + 1;
+        double *padding_up = data + 1;
+        double *padding_down = data + (cols + 2) * (rows + 1) + 1;
+        double *data_first = data + cols + 2 + 1;
+        double *data_last = padding_down - cols - 2 + 1;
 
         MPI_Status status;
         if (nmb_mpi_proc > 1) {
             if ( mpi_rank == 0) {
-                MPI_Sendrecv(data_last, cols, MPI_FLOAT, 1, 0,
-                            padding_down, cols, MPI_FLOAT, 1, 0,
+                MPI_Sendrecv(data_last, cols, MPI_DOUBLE, 1, 0,
+                            padding_down, cols, MPI_DOUBLE, 1, 0,
                             MPI_COMM_WORLD, &status);
             }
             else if ( mpi_rank == nmb_mpi_proc - 1) {
-                MPI_Sendrecv(data_first, cols, MPI_FLOAT, mpi_rank - 1, 0,
-                            padding_up, cols, MPI_FLOAT, mpi_rank - 1, 0,
+                MPI_Sendrecv(data_first, cols, MPI_DOUBLE, mpi_rank - 1, 0,
+                            padding_up, cols, MPI_DOUBLE, mpi_rank - 1, 0,
                             MPI_COMM_WORLD, &status);
             }
             else {
-                MPI_Sendrecv(data_first, cols, MPI_FLOAT, mpi_rank - 1, 0,
-                            padding_down, cols, MPI_FLOAT, mpi_rank + 1, 0,
+                MPI_Sendrecv(data_first, cols, MPI_DOUBLE, mpi_rank - 1, 0,
+                            padding_down, cols, MPI_DOUBLE, mpi_rank + 1, 0,
                             MPI_COMM_WORLD, &status);
 
-                MPI_Sendrecv(data_last, cols, MPI_FLOAT, mpi_rank + 1, 0,
-                            padding_up, cols, MPI_FLOAT, mpi_rank - 1, 0,
+                MPI_Sendrecv(data_last, cols, MPI_DOUBLE, mpi_rank + 1, 0,
+                            padding_up, cols, MPI_DOUBLE, mpi_rank - 1, 0,
                             MPI_COMM_WORLD, &status);
             }
         }
@@ -73,10 +73,10 @@ main(int argc, char **argv)
     if (args.verbose && mpi_rank == 0)
             printf("Loop done\n");
 
-    float *data = args.n_iter % 2 ? dataB : dataA;
+    double *data = args.n_iter % 2 ? dataB : dataA;
 
     // Calculate average
-    float internal_avg = 0.0f;
+    double internal_avg = 0.0f;
     for ( size_t i = 1; i <= rows; i ++) {
         for ( int j = 1; j <= cols; j++) {
             int index = i * (cols + 2) + j;
@@ -86,14 +86,14 @@ main(int argc, char **argv)
     internal_avg /= rows * cols * nmb_mpi_proc;
 
     // Reduce average to all processes
-    float avg;
+    double avg;
     MPI_Allreduce(&internal_avg, &avg, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 
     if (args.verbose && mpi_rank == 0)
         printf("Average calculated to %f\n", avg);
 
     // Calculate abs diff
-    float abs_diff;
+    double abs_diff;
     for ( size_t i = 1; i <= rows; i ++) {
         for ( int j = 1; j <= cols; j++) {
             int index = i * (cols + 2) + j;
@@ -103,7 +103,7 @@ main(int argc, char **argv)
     abs_diff /= rows * cols * nmb_mpi_proc;
 
     // Reduce to mpi rank 0
-    float reduce_abs_diff;
+    double reduce_abs_diff;
     MPI_Reduce(&abs_diff, &reduce_abs_diff, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (args.verbose && mpi_rank == 0)

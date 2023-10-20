@@ -3,6 +3,6 @@
 
 #include <stdio.h>
 
-void diffusion_step(float* prev_step, float* next_step, int rows, int cols, float c);
+void diffusion_step(double* prev_step, double* next_step, int rows, int cols, double c);
 
 #endif

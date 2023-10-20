@@ -1,11 +1,11 @@
 #include "read_input.h"
 
-float min(float a, float b) {
+double min(double a, double b) {
     if (a < b) return a;
     return b;
 }
 
-float * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
+double * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
     // Create file pointer
     FILE *file = fopen("init", "r");
 
@@ -32,7 +32,7 @@ float * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
 
     
     // Initialize data matrix
-    float *data = (float *)calloc((my_rows+2) * (*cols + 2), sizeof(float));
+    double *data = (double *)calloc((my_rows+2) * (*cols + 2), sizeof(double));
 
     if (data == NULL) {
 
@@ -43,7 +43,7 @@ float * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
 
     // Initialize coordinates and val
     int x, y;
-    float val;
+    double val;
 
     // Read values for each coordinates
     while(fscanf(file, "%d %d %f", &x, &y, &val) != EOF) {
@@ -61,7 +61,7 @@ float * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
 #ifdef READ_INPUT_MAIN
 int main(int argc, char** argv) {
 
-    float *data;
+    double *data;
     size_t rows, cols;
     int nmb_mpi_proc = 3;
 
