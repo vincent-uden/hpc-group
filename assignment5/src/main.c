@@ -25,10 +25,35 @@ main(int argc, char **argv)
 
     // Read data
     int rows, cols;
-    float *data = read_data(mpi_rank, nmb_mpi_proc, &rows, &cols)
+    float *data = read_data(mpi_rank, nmb_mpi_proc, &rows, &cols);
+
+    float *padding_up = data;
+    float *padding_down = data + (cols + 2) * (rows + 1);
+    float *data_first = data + cols + 2;
+    float *data_last = padding_down - cols - 2;
 
     for ( int step = 0; step < args.n_iter; step++) {
         // Sync BC
+        if (mpi_rank != 0 && mpi_rank != nmb_mpi_proc - 1) {
+            MPI_Status status;
+            MPI_Sendrecv(data_first, cols+2, MPI_FLOAT, mpi_rank - 1, 0,
+                         padding_down, cols+2, MPI_FLOAT, mpi_rank + 1, 0,
+                         MPI_COMM_WORLD, &status);
+
+            MPI_Sendrecv(data_last, cols+2, MPI_FLOAT, mpi_rank + 1, 0,
+                         padding_up, cols+2, MPI_FLOAT, mpi_rank - 1, 0,
+                         MPI_COMM_WORLD, &status);
+        }
+        else if ( mpi_rank == 0) {
+            MPI_Sendrecv(data_last, cols+2, MPI_FLOAT, 1, 0,
+                         padding_down, cols+2, MPI_FLOAT, 1, 0,
+                         MPI_COMM_WORLD, &status);
+        }
+        else if ( mpi_rank == nmb_mpi_proc - 1) {
+            MPI_Sendrecv(data_first, cols+2, MPI_FLOAT, mpi_rank - 1, 0,
+                         padding_up, cols+2, MPI_FLOAT, mpi_rank - 1, 0,
+                         MPI_COMM_WORLD, &status);
+        }
 
         diffusion_step(data, rows, cols);
     }
@@ -43,8 +68,9 @@ main(int argc, char **argv)
     }
     internal_avg /= rows * cols;
 
+    // Reduce average to all processes
     float avg;
-    // Reduce all
+    MPI_Allreduce(&internal_avg, &avg, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 
     // Calculate abs diff
     float abs_diff;
@@ -58,6 +84,9 @@ main(int argc, char **argv)
 
     // Reduce to mpi rank 0
     float reduce_abs_diff;
+    MPI_Reduce(&abs_diff, &reduce_abs_diff, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    MPI_Finalize();
 
     if (mpi_rank == 0) {
         printf("average: %f\n", avg);
