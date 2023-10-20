@@ -79,8 +79,6 @@ main(int argc, char **argv)
         }
         int a;
         MPI_Bcast(&a, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        sleep(mpi_rank + 0.1);
-        printdata(data, rows, cols, mpi_rank);
 
         diffusion_step(data, next_data, rows, cols, args.diff_c);
     }
