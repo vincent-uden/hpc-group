@@ -13,7 +13,7 @@ clean :
 .PHONE : bin
 bin : diffusion
 
-diffusion : src/main.c src/cli.c src/read_input.c
+diffusion : src/main.c src/cli.c src/read_input.c src/diffusion.c
 	mkdir -p build
 	gcc -o ./build/$@ $^ $(CFLAGS)
 
