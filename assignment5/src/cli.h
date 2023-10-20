@@ -1,0 +1,19 @@
+#ifndef CLI
+#define CLI
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
+
+typedef struct {
+    size_t n_iter;
+    float diff_c;
+    int degree;
+    int verbose;
+    int kernel_size;
+} CliArgs;
+
+CliArgs parse_cli(int argc, char** argv);
+
+#endif
