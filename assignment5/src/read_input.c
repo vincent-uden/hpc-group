@@ -5,7 +5,7 @@ double min(double a, double b) {
     return b;
 }
 
-double * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
+double * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols, size_t *global_rows) {
     // Create file pointer
     FILE *file = fopen("init", "r");
 
@@ -15,15 +15,13 @@ double * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
         exit(1);
     }
 
-    size_t global_rows;
     // Read the first row of the which is the size: [rows, cols]
-
-    fscanf(file, "%zu %zu\n", &global_rows, cols);
+    fscanf(file, "%zu %zu\n", global_rows, cols);
     // printf("box [%zu x %zu]\n", *rows, *cols);
     
     // Calculate the number of rows each worker will process
-    int rows_per_worker = global_rows / nmb_mpi_proc;
-    int remainder_rows = global_rows % nmb_mpi_proc;
+    int rows_per_worker = *global_rows / nmb_mpi_proc;
+    int remainder_rows = *global_rows % nmb_mpi_proc;
     
     int my_rows = (mpi_rank < remainder_rows) ? (rows_per_worker + 1) : rows_per_worker;
     *rows = my_rows;

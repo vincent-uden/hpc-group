@@ -24,7 +24,7 @@ main(int argc, char **argv)
     CliArgs args = parse_cli(argc, argv);
 
     // Read data
-    size_t rows, cols;
+    size_t rows, cols, global_rows;
     double *dataA = read_data(mpi_rank, nmb_mpi_proc, &rows, &cols);
     double *dataB = calloc((rows + 2)*(cols+2), sizeof(double));
 
@@ -83,7 +83,7 @@ main(int argc, char **argv)
             internal_avg += data[index];
         }
     }
-    internal_avg /= rows * cols * nmb_mpi_proc;
+    internal_avg /= global_rows * cols * nmb_mpi_proc;
 
     // Reduce average to all processes
     double avg;
@@ -100,7 +100,7 @@ main(int argc, char **argv)
             abs_diff += fabs(data[index] - avg);
         }
     }
-    abs_diff /= rows * cols * nmb_mpi_proc;
+    abs_diff /= global_rows * cols * nmb_mpi_proc;
 
     // Reduce to mpi rank 0
     double reduce_abs_diff;
