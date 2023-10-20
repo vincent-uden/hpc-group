@@ -83,7 +83,7 @@ main(int argc, char **argv)
             internal_avg += data[index];
         }
     }
-    internal_avg /= rows * cols;
+    internal_avg /= rows * cols * nmb_mpi_proc;
 
     // Reduce average to all processes
     float avg;
@@ -100,7 +100,7 @@ main(int argc, char **argv)
             abs_diff += fabs(data[index] - avg);
         }
     }
-    abs_diff /= rows * cols;
+    abs_diff /= rows * cols * nmb_mpi_proc;
 
     // Reduce to mpi rank 0
     float reduce_abs_diff;
