@@ -56,7 +56,7 @@ main(int argc, char **argv)
         float *data_last = padding_down - cols - 2;
 
         MPI_Status status;
-        if (nmb_mpi_proc > 1 && step % 2 == 0) {
+        if (nmb_mpi_proc > 1 && step % 10 == 0) {
             if ( mpi_rank == 0) {
                 MPI_Sendrecv(data_last, cols, MPI_FLOAT, 1, step,
                             padding_down, cols, MPI_FLOAT, 1, step,
