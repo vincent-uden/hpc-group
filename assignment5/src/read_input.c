@@ -1,5 +1,10 @@
 #include "read_input.h"
 
+float min(float a, float b) {
+    if (a < b) return a;
+    return b;
+}
+
 float * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
     // Create file pointer
     FILE *file = fopen("init", "r");
