@@ -87,7 +87,7 @@ main(int argc, char **argv)
 
     // Reduce average to all processes
     double avg;
-    MPI_Allreduce(&internal_avg, &avg, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&internal_avg, &avg, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
     if (args.verbose && mpi_rank == 0)
         printf("Average calculated to %f\n", avg);
@@ -104,7 +104,7 @@ main(int argc, char **argv)
 
     // Reduce to mpi rank 0
     double reduce_abs_diff;
-    MPI_Reduce(&abs_diff, &reduce_abs_diff, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&abs_diff, &reduce_abs_diff, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (args.verbose && mpi_rank == 0)
         printf("Abs diff Average calculated to %f\n", reduce_abs_diff);
