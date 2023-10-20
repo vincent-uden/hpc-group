@@ -27,7 +27,7 @@ float * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
 
     
     // Initialize data matrix
-    float *data = (float *)calloc((my_rows) * (*cols + 2), sizeof(float));
+    float *data = (float *)calloc((my_rows+2) * (*cols + 2), sizeof(float));
 
     if (data == NULL) {
         printf("Memory allocation failed.\n");
@@ -43,7 +43,7 @@ float * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
     while(fscanf(file, "%d %d %f", &x, &y, &val) != EOF) {
         if (x >= row_zero && x < (row_zero + my_rows)){
             // printf(" x y v = %d %d %f\n", x, y, val);
-            data[(x)*(*cols+2) + (y+1)] = val;
+            data[(x-row_zero + 1)*(*cols+2) + (y+1)] = val;
         }
     }
     
