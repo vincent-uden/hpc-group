@@ -25,7 +25,7 @@ main(int argc, char **argv)
 
     // Read data
     size_t rows, cols, global_rows;
-    double *dataA = read_data(mpi_rank, nmb_mpi_proc, &rows, &cols);
+    double *dataA = read_data(mpi_rank, nmb_mpi_proc, &rows, &cols, &global_rows);
     double *dataB = calloc((rows + 2)*(cols+2), sizeof(double));
 
     if (args.verbose && mpi_rank == 0)
@@ -85,7 +85,7 @@ main(int argc, char **argv)
             internal_avg += data[index];
         }
     }
-    internal_avg /= global_rows * cols * nmb_mpi_proc;
+    internal_avg /= global_rows * cols;
 
     // Reduce average to all processes
     double avg;
@@ -102,7 +102,7 @@ main(int argc, char **argv)
             abs_diff += fabs(data[index] - avg);
         }
     }
-    abs_diff /= global_rows * cols * nmb_mpi_proc;
+    abs_diff /= global_rows * cols;
 
     // Reduce to mpi rank 0
     double reduce_abs_diff;
