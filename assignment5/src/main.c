@@ -40,24 +40,26 @@ main(int argc, char **argv)
         float *data_last = padding_down - cols - 2 + 1;
 
         MPI_Status status;
-        if ( mpi_rank == 0) {
-            MPI_Sendrecv(data_last, cols, MPI_FLOAT, 1, 0,
-                         padding_down, cols, MPI_FLOAT, 1, 0,
-                         MPI_COMM_WORLD, &status);
-        }
-        else if ( mpi_rank == nmb_mpi_proc - 1) {
-            MPI_Sendrecv(data_first, cols, MPI_FLOAT, mpi_rank - 1, 0,
-                         padding_up, cols, MPI_FLOAT, mpi_rank - 1, 0,
-                         MPI_COMM_WORLD, &status);
-        }
-        else {
-            MPI_Sendrecv(data_first, cols, MPI_FLOAT, mpi_rank - 1, 0,
-                         padding_down, cols, MPI_FLOAT, mpi_rank + 1, 0,
-                         MPI_COMM_WORLD, &status);
+        if (nmb_mpi_proc > 1) {
+            if ( mpi_rank == 0) {
+                MPI_Sendrecv(data_last, cols, MPI_FLOAT, 1, 0,
+                            padding_down, cols, MPI_FLOAT, 1, 0,
+                            MPI_COMM_WORLD, &status);
+            }
+            else if ( mpi_rank == nmb_mpi_proc - 1) {
+                MPI_Sendrecv(data_first, cols, MPI_FLOAT, mpi_rank - 1, 0,
+                            padding_up, cols, MPI_FLOAT, mpi_rank - 1, 0,
+                            MPI_COMM_WORLD, &status);
+            }
+            else {
+                MPI_Sendrecv(data_first, cols, MPI_FLOAT, mpi_rank - 1, 0,
+                            padding_down, cols, MPI_FLOAT, mpi_rank + 1, 0,
+                            MPI_COMM_WORLD, &status);
 
-            MPI_Sendrecv(data_last, cols, MPI_FLOAT, mpi_rank + 1, 0,
-                         padding_up, cols, MPI_FLOAT, mpi_rank - 1, 0,
-                         MPI_COMM_WORLD, &status);
+                MPI_Sendrecv(data_last, cols, MPI_FLOAT, mpi_rank + 1, 0,
+                            padding_up, cols, MPI_FLOAT, mpi_rank - 1, 0,
+                            MPI_COMM_WORLD, &status);
+            }
         }
 
         diffusion_step(data, next_data, rows, cols, args.diff_c);
