@@ -46,7 +46,7 @@ double * read_data(int mpi_rank, int nmb_mpi_proc, size_t *rows, size_t *cols) {
     double val;
 
     // Read values for each coordinates
-    while(fscanf(file, "%d %d %f", &x, &y, &val) != EOF) {
+    while(fscanf(file, "%d %d %lf", &x, &y, &val) != EOF) {
         if (x >= row_zero && x < (row_zero + my_rows)){
             // printf(" x y v = %d %d %f\n", x, y, val);
             data[(x - row_zero + 1)*(*cols+2) + (y+1)] = val;

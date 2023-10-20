@@ -115,8 +115,8 @@ main(int argc, char **argv)
     free(dataB);
 
     if (mpi_rank == 0) {
-        printf("average: %f\n", avg);
-        printf("average absolute difference: %f\n", reduce_abs_diff);
+        printf("average: %lf\n", avg);
+        printf("average absolute difference: %lf\n", reduce_abs_diff);
     }
 
     return 0;
