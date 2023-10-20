@@ -5,7 +5,8 @@ import argparse
 from itertools import chain
 
 makefile_template = """
-CFLAGS = -O3 -lOpenCL -lm -march=native
+LIBRARIES = -L/usr/lib64/openmpi/lib -lm -lmpi -Wl,-rpath,/usr/lib64/openmpi/lib -Wl,--enable-new-dtags
+CFLAGS  = -O3 -I. -I/usr/include/openmpi-x86_64 -pthread $(LIBRARIES)
 
 .PHONY : all
 all : TARGET
