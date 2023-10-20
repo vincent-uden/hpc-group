@@ -42,7 +42,7 @@ main(int argc, char **argv)
         double *padding_up = data + 1;
         double *padding_down = data + (cols + 2) * (rows + 1) + 1;
         double *data_first = data + cols + 2 + 1;
-        double *data_last = padding_down - cols - 2 + 1;
+        double *data_last = padding_down - cols - 2;
 
         MPI_Status status;
         if (nmb_mpi_proc > 1) {
