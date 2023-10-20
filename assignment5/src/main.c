@@ -66,6 +66,8 @@ main(int argc, char **argv)
                             MPI_COMM_WORLD, &status);
             }
         }
+        int a;
+        MPI_Bcast(a, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
         diffusion_step(data, next_data, rows, cols, args.diff_c);
     }
