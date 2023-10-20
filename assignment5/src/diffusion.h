@@ -1,6 +1,8 @@
 #ifndef DIFFUSION
 #define DIFFUSION
 
-void diffusion_step(float* data, int rows, int cols);
+#include <stdio.h>
+
+void diffusion_step(float* prev_step, float* next_step, int rows, int cols);
 
 #endif
