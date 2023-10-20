@@ -5,11 +5,22 @@
 #include <stddef.h>
 #include <string.h>
 #include <math.h>
+#include <unistd.h>
 
 #include "cli.h"
 #include "read_input.h"
 #include "diffusion.h"
 
+void printdata(double* data, int rows, int cols, int mpi_rank) {
+    printf("Rank %d: \n", mpi_rank);
+    for (int i = 0; i < rows + 2; ++i) {
+        for (int j = 0; j < cols + 2; ++j) {
+            printf("%lf ", data[i * (cols+2) + j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 int
 main(int argc, char **argv)
@@ -68,6 +79,8 @@ main(int argc, char **argv)
         }
         int a;
         MPI_Bcast(&a, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        sleep(mpi_rank + 0.1);
+        printdata(data, rows, cols, mpi_rank);
 
         diffusion_step(data, next_data, rows, cols, args.diff_c);
     }

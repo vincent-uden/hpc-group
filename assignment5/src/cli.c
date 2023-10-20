@@ -8,6 +8,7 @@ CliArgs parse_cli(int argc, char** argv) {
     args.n_iter = 1;
     args.diff_c = 1.0f;
     args.verbose = 0;
+    args.print_rank = 0;
 
     int c;
     int opt_index = 0;
@@ -17,17 +18,21 @@ CliArgs parse_cli(int argc, char** argv) {
         {"n_iterations",  required_argument , 0, 'n'},
         {"diffusion_c", required_argument, 0, 'd'},
         {"verbose", optional_argument, 0, 'v'},
+        {"print_rank", optional_argument, 0, 'p'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "n:d:vh", long_options, &opt_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "n:d:vp:h", long_options, &opt_index)) != -1) {
         switch (c) {
             case 'n':
                 args.n_iter = atoi(optarg);
                 break;
             case 'd':
                 args.diff_c = atof(optarg);
+                break;
+            case 'p':
+                args.print_rank = atoi(optarg);
                 break;
             case 'v':
                 args.verbose = 1;

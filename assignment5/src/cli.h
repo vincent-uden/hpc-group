@@ -9,6 +9,7 @@
 typedef struct {
     size_t n_iter;
     float diff_c;
+    float print_rank;
     int verbose;
 } CliArgs;
 
