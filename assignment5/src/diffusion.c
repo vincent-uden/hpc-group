@@ -8,7 +8,7 @@ void diffusion_step(float* prev_step, float* next_step, int rows, int cols, floa
         float *write_row = next_step + i * (cols + 2);
 
         for (size_t j = 1; j <= cols; ++j) {
-            next_step[j] = curr_row[j] + c * ((
+            write_row[j] = curr_row[j] + c * ((
                 curr_row[j - 1] +
                 curr_row[j + 1] +
                 below_row[j] +
