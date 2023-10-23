@@ -17,6 +17,12 @@ void diffusion_step(float* prev_step, float* next_step, int rows, int cols, floa
         float *write_left = next_step + i * (cols + 2);
         float *write_right = next_step + i * (cols + 2) + 2;
 
+        __builtin_prefetch(read_row, 0, 0);
+        __builtin_prefetch(write_above, 1, 0);
+        __builtin_prefetch(write_below, 1, 0);
+        __builtin_prefetch(write_left, 1, 0);
+        __builtin_prefetch(write_right, 1, 0);
+
         for (size_t j = 0; j < cols; ++j) {
             write_below[j] = read_row[j] * (i != rows);
             write_left[j] += read_row[j] * (j != 0);
