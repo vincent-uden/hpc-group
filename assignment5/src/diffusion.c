@@ -18,10 +18,10 @@ void diffusion_step(float* prev_step, float* next_step, int rows, int cols, floa
         float *write_right = next_step + i * (cols + 2) + 2;
 
         for (size_t j = 0; j < cols; ++j) {
-            if (i != rows) write_below[j] = read_row[j];
-            if (j != 0) write_left[j] += read_row[j];
-            if (j != cols - 1) write_right[j] += read_row[j];
-            if (i != 1) write_above[j] += read_row[j];
+            write_below[j] = read_row[j] * (i != rows);
+            write_left[j] += read_row[j] * (j != 0);
+            write_right[j] += read_row[j] * (j != cols - 1);
+            write_above[j] += read_row[j] * (i != 1);
         }
     }
 
