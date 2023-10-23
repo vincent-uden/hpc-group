@@ -11,8 +11,8 @@ void diffusion_step(float* prev_step, float* next_step, int rows, int cols, floa
             next_step[j] = curr_row[j] + c * ((
                 curr_row[j - 1] +
                 curr_row[j + 1] +
-                below_row[j + cols + 2] +
-                above_row[j - cols - 2]
+                below_row[j] +
+                above_row[j]
             ) / 4.0f - curr_row[j]);
         }
     }
